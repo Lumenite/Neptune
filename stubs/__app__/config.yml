@@ -8,8 +8,8 @@ data:
   APP_ENV: "{{ .namespace }}"
   APP_DEBUG: "true"
 
-  GIT_HOST: "{username}:{password}@github.com"
-  GIT_NAMESPACE: "{namespace}"
+  GIT_HOST: "{{ .git_host }}"
+  GIT_NAMESPACE: "{{ .git_namespace }}"
 
   APP_URL: "http://localhost"
   LOG_CHANNEL: "stack"

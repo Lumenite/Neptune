@@ -21,3 +21,16 @@ version: {{ .version }}
 # Neptune does not ship any storage class due to it may varies depending upon your kubernetes cluster.
 # ------------------------------------------------------------------------------------------------------------
 storageClass: default
+
+# ------------------------------------------------------------------------------------------------------------
+# Git
+# If you want to download a private repository you can specify username and token inside git_host
+# example: https://{username}:{token}@github.com
+# ------------------------------------------------------------------------------------------------------------
+git_host: "github.com"
+
+# ------------------------------------------------------------------------------------------------------------
+# Neptune will automatically generate the full URL while building artifact.
+# Please checkout {{ .name }}/artifact.yml
+# ------------------------------------------------------------------------------------------------------------
+git_namespace: "lumenite"

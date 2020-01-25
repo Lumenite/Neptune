@@ -1,0 +1,41 @@
+version: "3.1"
+
+services:
+  caddy:
+    build: docker/caddy
+    working_dir: /code
+    environment:
+      - TLS_EMAIL_ID=${TLS_EMAIL_ID}
+    volumes:
+      - ./:/code
+      - ./docker/caddy/caddy:/etc/caddy
+      - ./storage/logs/caddy:/var/log/caddy
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - php-fpm
+
+  php-fpm:
+    build: docker/php-fpm
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    ports:
+      - 3306:3306
+
+  redis:
+    image: redis:alpine
+
+  yarn:
+    build:
+      context: docker/yarn
+      args:
+        - projects=${PROJECTS}
+    environment:
+      - APP_ENV=${APP_ENV}
