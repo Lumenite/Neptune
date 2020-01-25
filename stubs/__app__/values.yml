@@ -11,7 +11,7 @@ name: {{ .name }}
 version: v{{ .version }}
 
 # ------------------------------------------------------------------------------------------------------------
-# Storage class may very depending on your application
+# Storage class may vary depending on your application
 # Please make sure storage class exists inside the kubernetes cluster before you deploy any release.
 # Neptune does not ship any storage class due to it may varies depending upon your kubernetes cluster.
 # ------------------------------------------------------------------------------------------------------------
