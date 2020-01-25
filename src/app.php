@@ -33,7 +33,7 @@ $app->singleton(
 
 $app->singleton(
     Illuminate\Contracts\Console\Kernel::class,
-    Lumenite\Neptune\Console\Kernel::class
+    Lumenite\Neptune\Kernel::class
 );
 
 return $app;

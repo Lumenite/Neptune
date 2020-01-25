@@ -1,12 +1,12 @@
 <?php
 
-namespace Lumenite\Neptune\Console;
+namespace Lumenite\Neptune;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Laravel\Lumen\Console\Kernel as LumenKernel;
 use Lumenite\Neptune\Commands\ReleaseBuildCommand;
-use Lumenite\Neptune\Commands\ReleaseDeleteCommand;
 use Lumenite\Neptune\Commands\ReleaseCreateCommand;
+use Lumenite\Neptune\Commands\ReleaseDeleteCommand;
 use Lumenite\Neptune\Commands\Resources\ConfigCommand;
 use Lumenite\Neptune\Commands\Resources\DeploymentCommand;
 use Lumenite\Neptune\Commands\Resources\JobCommand;
