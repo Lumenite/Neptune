@@ -20,9 +20,9 @@ spec:
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
-                name: {{ .name }}-env
+                name: {{ .name }}
             - secretRef:
-                name: {{ .name }}-env
+                name: {{ .name }}
           env:
             - name: APP_ENV
               value: "production"
@@ -44,9 +44,9 @@ spec:
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
-                name: {{ .name }}-env
+                name: {{ .name }}
             - secretRef:
-                name: {{ .name }}-env
+                name: {{ .name }}
           env:
             - name: APP_ENV
               value: "production"

@@ -40,9 +40,9 @@ spec:
               name: ft-repository
           envFrom:
             - configMapRef:
-                name: {{ .name }}-env
+                name: {{ .name }}
             - secretRef:
-                name: {{ .name }}-env
+                name: {{ .name }}
           env:
             - name: PROJECTS
               value: "{{ .name }}"
@@ -92,9 +92,9 @@ spec:
             - containerPort: 9000
           envFrom:
             - configMapRef:
-                name: {{ .name }}-env
+                name: {{ .name }}
             - secretRef:
-                name: {{ .name }}-env
+                name: {{ .name }}
           volumeMounts:
             - mountPath: /code
               name: ft-repository
