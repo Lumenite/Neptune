@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   namespace: production
-  name: {{ .name }}-env
+  name: {{ .name }}
 data:
   APP_NAME: "{{ .name }}"
   APP_ENV: "production"

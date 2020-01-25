@@ -1,3 +1,18 @@
+# ------------------------------------------------------------------------------------------------------------
+# Name of the application.
+# This will be use mostly in every resource of the release to identify.
+# ------------------------------------------------------------------------------------------------------------
 name: {{ .name }}
-version: {{ .version }}
+
+# ------------------------------------------------------------------------------------------------------------
+# Version of the application.
+# Note: "v" should always be prefix due to it gives unexpected error while deploying job.
+# ------------------------------------------------------------------------------------------------------------
+version: v{{ .version }}
+
+# ------------------------------------------------------------------------------------------------------------
+# Storage class may very depending on your application
+# Please make sure storage class exists inside the kubernetes cluster before you deploy any release.
+# Neptune does not ship any storage class due to it may varies depending upon your kubernetes cluster.
+# ------------------------------------------------------------------------------------------------------------
 storageClass: default

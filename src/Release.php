@@ -7,6 +7,7 @@ use Lumenite\Neptune\Resources\Deployment;
 use Lumenite\Neptune\Resources\Job;
 use Lumenite\Neptune\Resources\PersistentVolumeClaim;
 use Lumenite\Neptune\Resources\Secret;
+use Lumenite\Neptune\Resources\Service;
 
 /**
  * @package Lumenite\Neptune
@@ -16,6 +17,7 @@ class Release
 {
     /**
      * ConfigMap file for the application.
+     *
      * @var string
      */
     const CONFIG_FILE = 'config.yml';
@@ -40,6 +42,13 @@ class Release
      * @var string
      */
     const ARTIFACT_FILE = 'artifact.yml';
+
+    /**
+     * Service file for the application.
+     *
+     * @var string
+     */
+    const SERVICE_FILE = 'service.yml';
 
     /**
      * Deployment file which will handle the application request
@@ -69,6 +78,9 @@ class Release
     /** @var Job $artifact */
     protected $artifact;
 
+    /** @var Service $service */
+    protected $service;
+
     /** @var Deployment $app */
     protected $app;
 
@@ -79,6 +91,7 @@ class Release
      * @param PersistentVolumeClaim $persistentVolumeClaim
      * @param Job $job
      * @param Deployment $deployment
+     * @param Service $service
      */
     public function __construct(
         ResourceLoader $resourceLoader,
@@ -86,6 +99,7 @@ class Release
         Secret $secret,
         PersistentVolumeClaim $persistentVolumeClaim,
         Job $job,
+        Service $service,
         Deployment $deployment)
     {
         $this->resourceLoader = $resourceLoader;
@@ -93,6 +107,7 @@ class Release
         $this->secret = $secret;
         $this->disk = $persistentVolumeClaim;
         $this->artifact = $job;
+        $this->service = $service;
         $this->app = $deployment;
     }
 
@@ -137,6 +152,14 @@ class Release
     }
 
     /**
+     * @return Service
+     */
+    public function getService()
+    {
+        return $this->service;
+    }
+
+    /**
      * @param $name
      * @return $this
      */
@@ -168,13 +191,13 @@ class Release
      */
     public function load($name, $version = null)
     {
-        $this->setName($name)
-            ->setVersion($version);
+        $this->setName($name)->setVersion($version);
 
         $this->config->load($this->resourceLoader->getConfigPath(), $this->resourceLoader->getValues());
         $this->secret->load($this->resourceLoader->getSecretPath(), $this->resourceLoader->getValues());
         $this->disk->load($this->resourceLoader->getDiskPath(), $this->resourceLoader->getValues());
         $this->artifact->load($this->resourceLoader->getArtifactPath(), $this->resourceLoader->getValues());
+        $this->service->load($this->resourceLoader->getServicePath(), $this->resourceLoader->getValues());
         $this->app->load($this->resourceLoader->getAppPath(), $this->resourceLoader->getValues());
 
         return $this;

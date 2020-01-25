@@ -48,9 +48,18 @@ class ResourceLoader
      */
     public function setVersion($version)
     {
-        $this->version = $version;
+        $this->version = 'v' . $version;
 
         return $this;
+    }
+
+    /**
+     * @return string
+     * @throws Exception
+     */
+    public function getServicePath()
+    {
+        return $this->getReleasePath(Release::SECRET_FILE);
     }
 
     /**

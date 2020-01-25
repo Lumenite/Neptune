@@ -47,6 +47,14 @@ class ReleaseDeleteCommand extends Command
         }
 
         try {
+            $release->getService()->delete(function ($stdout) {
+                $this->info($stdout);
+            });
+        } catch (Exception $exception) {
+            $this->warn($exception->getMessage());
+        }
+
+        try {
             $release->getArtifact()->delete(function ($stdout) {
                 $this->info($stdout);
             });

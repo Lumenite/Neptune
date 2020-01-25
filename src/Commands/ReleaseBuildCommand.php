@@ -36,10 +36,14 @@ class ReleaseBuildCommand extends Command
         ];
 
         $releasePath = NEPTUNE_EXEC_PATH . "/kubernetes/{$this->argument('app')}";
-        $stubPath = NEPTUNE_EXEC_PATH . '/stubs';
+        $stubPath =  base_path('stubs');
 
-        $filesystem->makeDirectory($releasePath, 0755, true, true);
-        $filesystem->copyDirectory($stubPath . '/__app__', $releasePath);
+        if ($filesystem->isDirectory($releasePath)) {
+            if ($this->confirm("$releasePath directory already exists. Would you like to overwrite it?")) {
+                $filesystem->makeDirectory($releasePath, 0755, true, true);
+                $filesystem->copyDirectory($stubPath . '/__app__', $releasePath);
+            }
+        }
 
         $values = $filesystem->get("$releasePath/values.yml");
 
@@ -47,13 +51,12 @@ class ReleaseBuildCommand extends Command
             $values = str_replace("{{ .$key }}", $placeHolder, $values);
         }
 
-        $filesystem->put(
-            "$releasePath/values.yml",
-            $values
-        );
+        $filesystem->put("$releasePath/values.yml", $values);
 
-        $filesystem->makeDirectory(NEPTUNE_EXEC_PATH . '/storage/k8s', 0755, true, true);
-        $filesystem->copyDirectory($stubPath . '/k8s', NEPTUNE_EXEC_PATH . '/storage/k8s');
+        if (!$filesystem->isDirectory(NEPTUNE_EXEC_PATH . '/storage/k8s')) {
+            $filesystem->makeDirectory(NEPTUNE_EXEC_PATH . '/storage/k8s', 0755, true, true);
+            $filesystem->copyDirectory($stubPath . '/k8s', NEPTUNE_EXEC_PATH . '/storage/k8s');
+        }
 
         $this->info("{$this->argument('app')} release build successfully.");
     }

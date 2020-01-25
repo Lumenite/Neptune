@@ -35,10 +35,10 @@ class ReleaseCreateCommand extends Command
         $release = $release->load($this->argument('app'), $this->argument('version'));
 
         $release->getConfig()->apply();
-        $this->info("ConfigMap release successfully.");
+        $this->info("ConfigMap deployed successfully.");
 
         $release->getSecret()->apply();
-        $this->info("Secret release successfully.");
+        $this->info("Secret deployed successfully.");
 
         $this->deployPersistentVolumeClaim($release->getDisk());
 
@@ -47,8 +47,11 @@ class ReleaseCreateCommand extends Command
 
         $this->deployJob($release->getArtifact());
 
+        $release->getService()->apply();
+        $this->info("Service deployed successfully.");
+
         $release->getApp()->apply();
-        $this->info("Deployment release successfully.");
+        $this->info("Deployment deployed successfully.");
     }
 
     /**
