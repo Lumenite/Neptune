@@ -48,7 +48,7 @@ class ResourceLoader
      */
     public function setVersion($version)
     {
-        $this->version = 'v' . $version;
+        $this->version = $version;
 
         return $this;
     }
@@ -116,7 +116,7 @@ class ResourceLoader
         if (!$this->values) {
             $values = $this->yaml::parseFile($this->getReleasePath('values.yml'));
             $primaryValues = [
-                'version' => $this->version ?? $values['version'],
+                'version' => 'v' . ($this->version ?? $values['version']),
             ];
 
             return $this->values = array_merge($values, $primaryValues);

@@ -6,9 +6,9 @@ name: {{ .name }}
 
 # ------------------------------------------------------------------------------------------------------------
 # Version of the application.
-# Note: "v" should always be prefix due to it gives unexpected error while deploying job.
+# This will be use mostly in every resource of the release to identify.
 # ------------------------------------------------------------------------------------------------------------
-version: v{{ .version }}
+version: {{ .version }}
 
 # ------------------------------------------------------------------------------------------------------------
 # Storage class may vary depending on your application
