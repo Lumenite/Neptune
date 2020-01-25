@@ -26,7 +26,7 @@ class ConfigCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Create/Delete ConfigMap resource the application in kubernetes cluster.';
+    protected $description = 'Deploy/Delete ConfigMap resource the application in kubernetes cluster.';
 
     /**
      * @param Deployment $deployment
