@@ -1,0 +1,69 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: production
+  name: artifact-{{ .name }}-{{ .version }}
+  labels:
+    app: {{ .name }}
+    version: {{ .version }}
+spec:
+  template:
+    spec:
+      volumes:
+        - name: ft-repository
+          persistentVolumeClaim:
+            claimName: {{ .name }}-{{ .version }}
+      restartPolicy: OnFailure
+      initContainers:
+        - name: php-setup
+          image: thebots/php-fpm:latest
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: {{ .name }}-env
+            - secretRef:
+                name: {{ .name }}-env
+          env:
+            - name: APP_ENV
+              value: "production"
+            - name: BRANCH
+              value: "master"
+            - name: PROJECTS
+              value: "{{ .name }}"
+          volumeMounts:
+            - mountPath: /code
+              name: ft-repository
+          command: ["/bin/bash"]
+          args:
+            - "-c"
+            - |
+              /etc/setup.sh
+      containers:
+        - name: node-setup
+          image: thebots/yarn:latest
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: {{ .name }}-env
+            - secretRef:
+                name: {{ .name }}-env
+          env:
+            - name: APP_ENV
+              value: "production"
+            - name: PROJECTS
+              value: "{{ .name }}"
+          volumeMounts:
+            - mountPath: /code
+              name: ft-repository
+          command: ["/bin/bash"]
+          args:
+            - "-c"
+            - |
+              apk add sudo
+              chown -R node:node /code
+
+              # If you have private repository then replace the token
+              echo "//registry.npmjs.org/:_authToken={token}" > /home/node/.npmrc
+
+              su node -c "/etc/setup.sh"
+

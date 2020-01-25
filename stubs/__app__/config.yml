@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: production
+  name: {{ .name }}-env
+data:
+  APP_NAME: "{{ .name }}"
+  APP_ENV: "production"
+  APP_DEBUG: "true"
+
+  GIT_HOST: "{username}:{password}@github.com"
+  GIT_NAMESPACE: "{namespace}"
+
+  APP_URL: "http://localhost"
+  LOG_CHANNEL: "stack"
+
+  DB_CONNECTION: "mysql"
+  DB_HOST: "mysql"
+  DB_PORT: "3306"
+
+  BROADCAST_DRIVER: "redis"
+  CACHE_DRIVER: "redis"
+  CACHE_PREFIX: "{{ .name }}"
+  SESSION_DRIVER: "redis"
+  SESSION_LIFETIME: "10080"
+  SESSION_CONNECTION: "session"
+  QUEUE_DRIVER: "redis"
+
+  REDIS_HOST: "redis"
+  REDIT_PASSWORD: "null"
+  REDIS_PORT: "6379"
+
+  DB_DATABASE: "{{ .name }}"
+  DB_USERNAME: "{{ .name }}"
+

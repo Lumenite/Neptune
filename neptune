@@ -1,0 +1,65 @@
+#!/usr/bin/env php
+<?php
+
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\ConsoleOutput;
+
+if (!ini_get('date.timezone')) {
+    ini_set('date.timezone', 'UTC');
+}
+
+foreach ([__DIR__ . '/../../autoload.php', __DIR__ . '/../vendor/autoload.php', __DIR__ . '/vendor/autoload.php'] as $file) {
+    if (file_exists($file)) {
+        define('NEPTUNE_COMPOSER_INSTALL', $file);
+
+        // Storing cwd will help to identify from where user has executed neptune.
+        define('NEPTUNE_EXEC_PATH', getcwd());
+
+        break;
+    }
+}
+
+unset($file);
+
+if (!defined('NEPTUNE_COMPOSER_INSTALL')) {
+    fwrite(
+        STDERR,
+        'You need to set up the project dependencies using Composer:' . PHP_EOL . PHP_EOL .
+        '    composer install' . PHP_EOL . PHP_EOL .
+        'You can learn all about Composer on https://getcomposer.org/.' . PHP_EOL
+    );
+
+    die(1);
+}
+
+require NEPTUNE_COMPOSER_INSTALL;
+
+/*
+|--------------------------------------------------------------------------
+| Create The Application
+|--------------------------------------------------------------------------
+|
+| First we need to get an application instance. This creates an instance
+| of the application / container and bootstraps the application so it
+| is ready to receive HTTP / Console requests from the environment.
+|
+*/
+
+$app = require __DIR__ . '/src/app.php';
+
+/*
+|--------------------------------------------------------------------------
+| Run The Artisan Application
+|--------------------------------------------------------------------------
+|
+| When we run the console application, the current CLI command will be
+| executed in this console and the response sent back to a terminal
+| or another output device for the developers. Here goes nothing!
+|
+*/
+
+$kernel = $app->make(
+    Illuminate\Contracts\Console\Kernel::class
+);
+
+exit($kernel->handle(new ArgvInput, new ConsoleOutput));
