@@ -4,7 +4,8 @@ namespace Lumenite\Neptune;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Laravel\Lumen\Console\Kernel as LumenKernel;
-use Lumenite\Neptune\Commands\ReleaseBuildCommand;
+use Lumenite\Neptune\Commands\DockerPublishCommand;
+use Lumenite\Neptune\Commands\ReleasePublishCommand;
 use Lumenite\Neptune\Commands\ReleaseCreateCommand;
 use Lumenite\Neptune\Commands\ReleaseDeleteCommand;
 use Lumenite\Neptune\Commands\Resources\ConfigCommand;
@@ -20,7 +21,8 @@ class Kernel extends LumenKernel
      * @var array
      */
     protected $commands = [
-        ReleaseBuildCommand::class,
+        DockerPublishCommand::class,
+        ReleasePublishCommand::class,
         ReleaseCreateCommand::class,
         ReleaseDeleteCommand::class,
         DeploymentCommand::class,

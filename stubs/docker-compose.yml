@@ -1,0 +1,47 @@
+version: "3.1"
+
+services:
+  caddy:
+    build: docker/caddy
+    working_dir: /code/neptune
+    environment:
+      - TLS_EMAIL_ID=self_signed
+      - PROJECTS=neptune
+    volumes:
+      - ./:/code/neptune
+      - ./docker/caddy/caddy:/etc/caddy
+      - ./storage/logs/caddy:/var/log/caddy
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - php-fpm
+
+  php-fpm:
+    build: docker/php-fpm
+    working_dir: /code/neptune
+    environment:
+      - PROJECTS=neptune
+    volumes:
+      - ./:/code/neptune
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=neptune
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=secret
+    ports:
+      - 3306:3306
+
+  redis:
+    image: redis:alpine
+
+  yarn:
+    image: thebots/yarn:latest
+    working_dir: /code/neptune
+    environment:
+      - PROJECTS=neptune
+    volumes:
+      - ./:/code/neptune

@@ -8,14 +8,14 @@ use Illuminate\Filesystem\Filesystem;
  * @package Lumenite\Neptune
  * @author Mohammed Mudassir <hello@mudasir.me>
  */
-class ReleaseBuildCommand extends Command
+class ReleasePublishCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'release:build {app} {version}';
+    protected $signature = 'release:publish {app} {version}';
 
     /**
      * The console command description.

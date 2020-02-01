@@ -26,6 +26,8 @@ storageClass: default
 # Git
 # If you want to download a private repository you can specify username and token inside git_host
 # example: https://{username}:{token}@github.com
+#
+# @link https://github.com/Lumenite/Neptune/blob/57e11390294b64d1b1863d6c93dec6bdbff701e2/docker/php-fpm/setup.sh#L20
 # ------------------------------------------------------------------------------------------------------------
 git_host: "github.com"
 
