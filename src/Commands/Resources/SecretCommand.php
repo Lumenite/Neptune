@@ -35,7 +35,7 @@ class SecretCommand extends Command
     public function handle(Secret $secret)
     {
         $secret = $secret->load(
-            $this->getResourceLoader()->getArtifactPath(),
+            $this->getResourceLoader()->getSecretPath(),
             $this->getResourceLoader()->getValues()
         );
 

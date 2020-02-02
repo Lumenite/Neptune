@@ -40,9 +40,10 @@ class ReleasePublishCommand extends Command
 
         if ($filesystem->isDirectory($releasePath)) {
             if ($this->confirm("$releasePath directory already exists. Would you like to overwrite it?")) {
-                $filesystem->makeDirectory($releasePath, 0755, true, true);
-                $filesystem->copyDirectory($stubPath . '/__app__', $releasePath);
+                $this->copyReleaseFiles($filesystem, $releasePath, $stubPath);
             }
+        } else {
+            $this->copyReleaseFiles($filesystem, $releasePath, $stubPath);
         }
 
         $values = $filesystem->get("$releasePath/values.yml");
@@ -59,5 +60,16 @@ class ReleasePublishCommand extends Command
         }
 
         $this->info("{$this->argument('app')} release build successfully.");
+    }
+
+    /**
+     * @param Filesystem $filesystem
+     * @param string $releasePath
+     * @param string $stubPath
+     */
+    protected function copyReleaseFiles(Filesystem $filesystem, string $releasePath, string $stubPath): void
+    {
+        $filesystem->makeDirectory($releasePath, 0755, true, true);
+        $filesystem->copyDirectory($stubPath . '/__app__', $releasePath);
     }
 }

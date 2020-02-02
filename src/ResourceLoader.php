@@ -59,7 +59,7 @@ class ResourceLoader
      */
     public function getServicePath()
     {
-        return $this->getReleasePath(Release::SECRET_FILE);
+        return $this->getReleasePath(Release::SERVICE_FILE);
     }
 
     /**
