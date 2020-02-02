@@ -18,13 +18,12 @@ data:
   DB_HOST: "mysql"
   DB_PORT: "3306"
 
-  BROADCAST_DRIVER: "redis"
-  CACHE_DRIVER: "redis"
+  BROADCAST_DRIVER: "log"
+  CACHE_DRIVER: "file"
   CACHE_PREFIX: "{{ .name }}"
-  SESSION_DRIVER: "redis"
+  SESSION_DRIVER: "file"
   SESSION_LIFETIME: "10080"
-  SESSION_CONNECTION: "session"
-  QUEUE_DRIVER: "redis"
+  QUEUE_DRIVER: "sync"
 
   REDIS_HOST: "redis"
   REDIT_PASSWORD: "null"
