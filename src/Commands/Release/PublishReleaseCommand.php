@@ -1,14 +1,15 @@
 <?php
 
-namespace Lumenite\Neptune\Commands;
+namespace Lumenite\Neptune\Commands\Release;
 
 use Illuminate\Filesystem\Filesystem;
+use Lumenite\Neptune\Commands\Command;
 
 /**
  * @package Lumenite\Neptune
  * @author Mohammed Mudassir <hello@mudasir.me>
  */
-class ReleasePublishCommand extends Command
+class PublishReleaseCommand extends Command
 {
     /**
      * The name and signature of the console command.

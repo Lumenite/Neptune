@@ -1,7 +1,8 @@
 <?php
 
-namespace Lumenite\Neptune\Commands;
+namespace Lumenite\Neptune\Commands\Release;
 
+use Lumenite\Neptune\Commands\Command;
 use Lumenite\Neptune\Release;
 use Lumenite\Neptune\Resources\Job;
 use Lumenite\Neptune\Resources\PersistentVolumeClaim;
@@ -10,7 +11,7 @@ use Lumenite\Neptune\Resources\PersistentVolumeClaim;
  * @package Lumenite\Neptune
  * @author Mohammed Mudassir <hello@mudasir.me>
  */
-class ReleaseCreateCommand extends Command
+class CreateReleaseCommand extends Command
 {
     /**
      * The name and signature of the console command.

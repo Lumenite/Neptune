@@ -1,15 +1,16 @@
 <?php
 
-namespace Lumenite\Neptune\Commands;
+namespace Lumenite\Neptune\Commands\Release;
 
 use Exception;
+use Lumenite\Neptune\Commands\Command;
 use Lumenite\Neptune\Release;
 
 /**
  * @package Lumenite\Neptune
  * @author Mohammed Mudassir <hello@mudasir.me>
  */
-class ReleaseDeleteCommand extends Command
+class DeleteReleaseCommand extends Command
 {
     /**
      * The name and signature of the console command.
