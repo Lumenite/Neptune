@@ -11,6 +11,7 @@ use Lumenite\Neptune\Commands\Release\DeleteReleaseCommand;
 use Lumenite\Neptune\Commands\Resources\ConfigCommand;
 use Lumenite\Neptune\Commands\Resources\DeploymentCommand;
 use Lumenite\Neptune\Commands\Resources\JobCommand;
+use Lumenite\Neptune\Commands\Resources\PersistenceVolumeClaimCommand;
 use Lumenite\Neptune\Commands\Resources\SecretCommand;
 
 class Kernel extends LumenKernel
@@ -29,6 +30,7 @@ class Kernel extends LumenKernel
         ConfigCommand::class,
         SecretCommand::class,
         JobCommand::class,
+        PersistenceVolumeClaimCommand::class,
     ];
 
     /**
