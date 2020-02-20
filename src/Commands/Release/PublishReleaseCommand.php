@@ -2,8 +2,10 @@
 
 namespace Lumenite\Neptune\Commands\Release;
 
-use Illuminate\Filesystem\Filesystem;
 use Lumenite\Neptune\Commands\Command;
+use Lumenite\Neptune\Release;
+use Lumenite\Neptune\Resources\Job;
+use Lumenite\Neptune\Resources\PersistentVolumeClaim;
 
 /**
  * @package Lumenite\Neptune
@@ -16,61 +18,75 @@ class PublishReleaseCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'release:publish {app} {version}';
+    protected $signature = 'release:publish {app} {version?}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Generate a release to deploy on kubernetes cluster';
+    protected $description = 'Publish a release to kubernetes cluster.';
 
     /**
-     * @param Filesystem $filesystem
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @param Release $release
+     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException|\Exception
      */
-    public function handle(Filesystem $filesystem)
+    public function handle(Release $release)
     {
-        $placeHolders = [
-            'name' => $this->argument('app'),
-            'version' => $this->argument('version'),
-        ];
+        $release = $release->load($this->argument('app'), $this->argument('version'));
 
-        $releasePath = NEPTUNE_EXEC_PATH . "/kubernetes/{$this->argument('app')}";
-        $stubPath =  base_path('stubs');
+        $release->getConfig()->apply();
+        $this->info("ConfigMap deployed successfully.");
 
-        if ($filesystem->isDirectory($releasePath)) {
-            if ($this->confirm("$releasePath directory already exists. Would you like to overwrite it?")) {
-                $this->copyReleaseFiles($filesystem, $releasePath, $stubPath);
-            }
-        } else {
-            $this->copyReleaseFiles($filesystem, $releasePath, $stubPath);
-        }
+        $release->getSecret()->apply();
+        $this->info("Secret deployed successfully.");
 
-        $values = $filesystem->get("$releasePath/values.yml");
+        $this->deployPersistentVolumeClaim($release->getDisk());
 
-        foreach ($placeHolders as $key => $placeHolder) {
-            $values = str_replace("{{ .$key }}", $placeHolder, $values);
-        }
+        # Give sometime for pvc to initialize
+        sleep(3);
 
-        $filesystem->put("$releasePath/values.yml", $values);
+        $this->deployJob($release->getArtifact());
 
-        if (!$filesystem->isDirectory(NEPTUNE_EXEC_PATH . '/storage/k8s')) {
-            $filesystem->makeDirectory(NEPTUNE_EXEC_PATH . '/storage/k8s', 0755, true, true);
-            $filesystem->copyDirectory($stubPath . '/k8s', NEPTUNE_EXEC_PATH . '/storage/k8s');
-        }
+        $release->getService()->apply();
+        $this->info("Service deployed successfully.");
 
-        $this->info("{$this->argument('app')} release build successfully.");
+        $release->getApp()->apply();
+        $this->info("Deployment deployed successfully.");
     }
 
     /**
-     * @param Filesystem $filesystem
-     * @param string $releasePath
-     * @param string $stubPath
+     * @param PersistentVolumeClaim $pvc
+     * @return \Lumenite\Neptune\Kubectl|\Lumenite\Neptune\Resources\ResourceContract
+     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
      */
-    protected function copyReleaseFiles(Filesystem $filesystem, string $releasePath, string $stubPath): void
+    protected function deployPersistentVolumeClaim(PersistentVolumeClaim $pvc)
     {
-        $filesystem->makeDirectory($releasePath, 0755, true, true);
-        $filesystem->copyDirectory($stubPath . '/__app__', $releasePath);
+        $response = $pvc->apply();
+        $this->info("PVC '{$response->name()}' created.");
+
+        # Waiting for PVC to get initialized
+        $this->info("Waiting for PVC '{$response->name()}' to get initialize.");
+        $bar = $this->output->createProgressBar(10);
+        $bar->start();
+        $kubectl = $pvc->wait(function () use ($bar) {
+            $bar->advance();
+        });
+        $bar->finish();
+
+        return $kubectl;
+    }
+
+    /**
+     * @param Job $job
+     * @return \Lumenite\Neptune\Kubectl|\Lumenite\Neptune\Resources\ResourceContract
+     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
+     */
+    protected function deployJob(Job $job)
+    {
+        $response = $job->apply();
+        $this->info("\n\nJob '{$response->name()}' initialized.");
+
+        return $job->wait();
     }
 }

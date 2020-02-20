@@ -1,12 +1,14 @@
-# Neptune Kubernetes PHP Framework
+# Neptune Framework
 
-## Kubernetes deployment made easy for any project
+## Kubernetes Deployment Framework for Laravel Application
 
 > Note: Neptune is in development stage. Commands or APIs may change when a better solution is found.
 
 ### Documentation
 
-Please visit https://neptune.lumenite.net/ for documentation.
+1. The main purpose of Neptune is to manage Laravel or any other application by Release methodology. 
+2. It standardise the deployment process and focus more to mimic production environment on Minikube.
+3. Full documentation is available here https://neptune.lumenite.net
 
 ### License
 
@@ -15,9 +17,9 @@ The Neptune framework is open-sourced software licensed under the [MIT license](
 
 <a name="Contribution"></a>
 ### Contribution:
-1. Give it a star if you like this package.
+1. New features and suggestions are welcome.
 2. Help to keep readme up to date with some functionality which exist in this framework but not visible to others.
-3. Feel free to contribute or any suggestion which can help PHP and Kubernetes community to grow.
+3. Feel free to contribute to help PHP and Kubernetes community to grow.
 4. Just do it. You are welcome :)
 
 ### Credits
