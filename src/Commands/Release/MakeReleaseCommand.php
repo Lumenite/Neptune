@@ -16,7 +16,7 @@ class MakeReleaseCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'release:make {app} {version}';
+    protected $signature = 'release:make {app} {version=0.1}';
 
     /**
      * The console command description.
