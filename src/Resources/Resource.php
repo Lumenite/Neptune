@@ -53,7 +53,7 @@ abstract class Resource implements ResourceContract
         $content = file_get_contents($file);
 
         foreach ($placeHolders as $key => $value) {
-            $content = str_replace("{{ .$key }}", $value, $content);
+            $content = preg_replace("/\{\{\s?\.$key\s?\}\}/i", $value, $content);
         }
 
         $this->config = collect($this->yaml::parse($content));
@@ -98,6 +98,16 @@ abstract class Resource implements ResourceContract
     public function wait(callable $callback = null)
     {
         return $this->kubectl->wait($this, $callback);
+    }
+
+    /**
+     * @param callable|null $callback
+     * @return string
+     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
+     */
+    public function follow(callable $callback = null)
+    {
+        return $this->kubectl->logs($this, $callback)->getOutput();
     }
 
     /**

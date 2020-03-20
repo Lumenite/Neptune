@@ -35,7 +35,7 @@ class ServiceCommand extends Command
     public function handle(service $service)
     {
         $service = $service->load(
-            $this->getResourceLoader()->getArtifactPath(),
+            $this->getResourceLoader()->getServicePath(),
             $this->getResourceLoader()->getValues()
         );
 

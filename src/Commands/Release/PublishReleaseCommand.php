@@ -48,6 +48,8 @@ class PublishReleaseCommand extends Command
 
         $this->deployJob($release->getArtifact());
 
+//        $this->followJob($release->getArtifact());
+
         $release->getService()->apply();
         $this->info("Service deployed successfully.");
 
@@ -88,5 +90,16 @@ class PublishReleaseCommand extends Command
         $this->info("\n\nJob '{$response->name()}' initialized.");
 
         return $job->wait();
+    }
+
+    /**
+     * @param Job $job
+     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
+     */
+    protected function followJob(Job $job)
+    {
+        $job->follow(function ($stdout) {
+            $this->getOutput()->write($stdout);
+        });
     }
 }
