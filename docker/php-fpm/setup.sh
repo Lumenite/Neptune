@@ -38,8 +38,9 @@ do
 
             composer install
             php artisan key:generate
-            php artisan migrate
         fi
+
+        php artisan migrate
 
         chmod -R 0777 /code/${project}/storage
         touch /code/variables/${project}.executed

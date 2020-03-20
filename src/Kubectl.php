@@ -108,6 +108,27 @@ class Kubectl
     }
 
     /**
+     * @param Resource $resource
+     * @param callable $callback
+     * @return Process
+     * @throws ResourceDeploymentException
+     */
+    public function logs(Resource $resource, callable $callback)
+    {
+        $this->verifyResource($resource);
+
+        $process = new Process([
+            'kubectl', 'logs', '-f', $resource->getKind(), $resource->getName(), '-n', $resource->getNamespace(),
+        ]);
+
+        $process->enableOutput();
+
+        $process->run($this->handleOutput($resource, $callback));
+
+        return $process;
+    }
+
+    /**
      * @return ClusterResponse
      */
     public function getResponse()
