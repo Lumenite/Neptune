@@ -66,6 +66,15 @@ class ResourceLoader
      * @return string
      * @throws Exception
      */
+    public function getHpaPath()
+    {
+        return $this->getReleasePath(Release::HPA_FILE);
+    }
+
+    /**
+     * @return string
+     * @throws Exception
+     */
     public function getAppPath()
     {
         return $this->getReleasePath(Release::APP_FILE);

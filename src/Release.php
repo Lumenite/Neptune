@@ -51,6 +51,13 @@ class Release
     const SERVICE_FILE = 'service.yml';
 
     /**
+     * Horizontal pod autoscaling file for the application.
+     *
+     * @var string
+     */
+    const HPA_FILE = 'hpa.yml';
+
+    /**
      * Deployment file which will handle the application request
      *
      * @var string

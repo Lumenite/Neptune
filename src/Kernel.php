@@ -8,6 +8,7 @@ use Lumenite\Neptune\Commands\DockerPublishCommand;
 use Lumenite\Neptune\Commands\Release\MakeReleaseCommand;
 use Lumenite\Neptune\Commands\Release\PublishReleaseCommand;
 use Lumenite\Neptune\Commands\Release\DeleteReleaseCommand;
+use Lumenite\Neptune\Commands\Resources\AutoScaleCommand;
 use Lumenite\Neptune\Commands\Resources\ConfigCommand;
 use Lumenite\Neptune\Commands\Resources\DeploymentCommand;
 use Lumenite\Neptune\Commands\Resources\JobCommand;
@@ -31,6 +32,7 @@ class Kernel extends LumenKernel
         ConfigCommand::class,
         SecretCommand::class,
         ServiceCommand::class,
+        AutoScaleCommand::class,
         JobCommand::class,
         PersistenceVolumeClaimCommand::class,
     ];
