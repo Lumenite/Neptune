@@ -4,6 +4,7 @@ namespace Lumenite\Neptune\Commands\Resources;
 
 use Lumenite\Neptune\Commands\Command;
 use Lumenite\Neptune\Resources\Job;
+use Lumenite\Neptune\Resources\ResourceContract;
 
 /**
  * @package Lumenite\Neptune
@@ -16,10 +17,7 @@ class JobCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'resource:job 
-    {app} 
-    {version?} 
-    {--delete : Delete the job resource}';
+    protected $signature = 'resource:job %s';
 
     /**
      * The console command description.
@@ -40,9 +38,10 @@ class JobCommand extends Command
     }
 
     /**
-     * @param Job $job
+     * @param \Lumenite\Neptune\Resources\ResourceContract|Job $job
+     * @return mixed|void
      */
-    public function apply(Job $job)
+    public function apply(ResourceContract $job)
     {
         $response = $job->apply();
 
@@ -50,9 +49,10 @@ class JobCommand extends Command
     }
 
     /**
-     * @param Job $job
+     * @param \Lumenite\Neptune\Resources\ResourceContract|Job $job
+     * @return mixed|void
      */
-    public function delete(Job $job)
+    public function delete(ResourceContract $job)
     {
         $job->delete(function ($stdout) {
             $this->info($stdout);

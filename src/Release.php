@@ -60,9 +60,17 @@ class Release
     /**
      * Deployment file which will handle the application request
      *
+     * @deprecated
      * @var string
      */
     const APP_FILE = 'app.yml';
+
+    /**
+     * Deployment file which will handle the application request
+     *
+     * @var string
+     */
+    const DEPLOYMENT_FILE = 'deployment.yml';
 
     /** @var string $name Name of the Release */
     protected $name;
@@ -205,7 +213,7 @@ class Release
         $this->disk->load($this->resourceLoader->getDiskPath(), $this->resourceLoader->getValues());
         $this->artifact->load($this->resourceLoader->getArtifactPath(), $this->resourceLoader->getValues());
         $this->service->load($this->resourceLoader->getServicePath(), $this->resourceLoader->getValues());
-        $this->app->load($this->resourceLoader->getAppPath(), $this->resourceLoader->getValues());
+        $this->app->load($this->resourceLoader->getDeploymentPath(), $this->resourceLoader->getValues());
 
         return $this;
     }

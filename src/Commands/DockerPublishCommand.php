@@ -4,6 +4,8 @@ namespace Lumenite\Neptune\Commands;
 
 use Illuminate\Filesystem\Filesystem;
 
+use Illuminate\Console\Command;
+
 /**
  * @package Lumenite\Neptune
  * @author Mohammed Mudassir <hello@mudasir.me>

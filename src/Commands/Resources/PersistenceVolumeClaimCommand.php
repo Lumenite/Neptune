@@ -4,6 +4,7 @@ namespace Lumenite\Neptune\Commands\Resources;
 
 use Lumenite\Neptune\Commands\Command;
 use Lumenite\Neptune\Resources\PersistentVolumeClaim;
+use Lumenite\Neptune\Resources\ResourceContract;
 
 /**
  * @package Lumenite\Neptune
@@ -16,10 +17,7 @@ class PersistenceVolumeClaimCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'resource:pvc
-    {app} 
-    {version?}
-    {--delete : Delete the job resource}';
+    protected $signature = 'resource:pvc %s';
 
     /**
      * The console command description.
@@ -43,9 +41,10 @@ class PersistenceVolumeClaimCommand extends Command
     }
 
     /**
-     * @param PersistentVolumeClaim $pvc
+     * @param \Lumenite\Neptune\Resources\ResourceContract|PersistentVolumeClaim $pvc
+     * @return mixed|void
      */
-    protected function apply(PersistentVolumeClaim $pvc)
+    protected function apply(ResourceContract $pvc)
     {
         $response = $pvc->apply();
 
@@ -53,9 +52,10 @@ class PersistenceVolumeClaimCommand extends Command
     }
 
     /**
-     * @param PersistentVolumeClaim $pvc
+     * @param \Lumenite\Neptune\Resources\ResourceContract|PersistentVolumeClaim $pvc
+     * @return mixed|void
      */
-    protected function delete(PersistentVolumeClaim $pvc)
+    protected function delete(ResourceContract $pvc)
     {
         $pvc->delete(function ($stdout) {
             $this->info($stdout);

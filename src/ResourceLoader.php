@@ -15,7 +15,11 @@ class ResourceLoader
     /** @var string */
     protected $releaseName;
 
+    /** @var null|string $appNamespace */
     protected $version = null;
+
+    /** @var null|string $appNamespace */
+    protected $appNamespace = null;
 
     /** @var array */
     protected $values;
@@ -54,8 +58,19 @@ class ResourceLoader
     }
 
     /**
+     * @param string|null $namespace
+     * @return $this
+     */
+    public function setNamespace(?string $namespace)
+    {
+        $this->appNamespace = $namespace;
+
+        return $this;
+    }
+
+    /**
      * @return string
-     * @throws Exception
+     * @throws \Lumenite\Neptune\Exceptions\NotFoundException
      */
     public function getServicePath()
     {
@@ -64,7 +79,7 @@ class ResourceLoader
 
     /**
      * @return string
-     * @throws Exception
+     * @throws \Lumenite\Neptune\Exceptions\NotFoundException
      */
     public function getHpaPath()
     {
@@ -73,16 +88,20 @@ class ResourceLoader
 
     /**
      * @return string
-     * @throws Exception
+     * @throws \Lumenite\Neptune\Exceptions\NotFoundException
      */
-    public function getAppPath()
+    public function getDeploymentPath()
     {
-        return $this->getReleasePath(Release::APP_FILE);
+        try {
+            return $this->getReleasePath(Release::APP_FILE);
+        } catch (NotFoundException $exception) {
+            return $this->getReleasePath(Release::DEPLOYMENT_FILE);
+        }
     }
 
     /**
      * @return string
-     * @throws Exception
+     * @throws \Lumenite\Neptune\Exceptions\NotFoundException
      */
     public function getSecretPath()
     {
@@ -91,7 +110,7 @@ class ResourceLoader
 
     /**
      * @return string
-     * @throws Exception
+     * @throws \Lumenite\Neptune\Exceptions\NotFoundException
      */
     public function getConfigPath()
     {
@@ -100,7 +119,7 @@ class ResourceLoader
 
     /**
      * @return string
-     * @throws Exception
+     * @throws \Lumenite\Neptune\Exceptions\NotFoundException
      */
     public function getArtifactPath()
     {
@@ -109,7 +128,7 @@ class ResourceLoader
 
     /**
      * @return string
-     * @throws Exception
+     * @throws \Lumenite\Neptune\Exceptions\NotFoundException
      */
     public function getDiskPath()
     {
@@ -118,13 +137,14 @@ class ResourceLoader
 
     /**
      * @return array
-     * @throws Exception
+     * @throws \Lumenite\Neptune\Exceptions\NotFoundException
      */
     public function getValues()
     {
         if (!$this->values) {
             $values = $this->yaml::parseFile($this->getReleasePath('values.yml'));
             $primaryValues = [
+                'namespace' =>  $this->appNamespace ?? $values['namespace'],
                 'version' => 'v' . ($this->version ?? $values['version']),
             ];
 
@@ -135,9 +155,20 @@ class ResourceLoader
     }
 
     /**
+     * @param $key
+     * @return mixed
+     * @throws \Lumenite\Neptune\Exceptions\NotFoundException
+     */
+    public function get($key)
+    {
+        return $this->getValues()[$key];
+    }
+
+    /**
      * @param string $suffix
      * @return string
-     * @throws Exception
+     * @throw \Exception
+     * @throws \Lumenite\Neptune\Exceptions\NotFoundException
      */
     protected function getReleasePath($suffix = '')
     {

@@ -23,10 +23,16 @@ interface ResourceContract
     public function getFilePath();
 
     /**
-     * @param callable $callback
-     * @return ClusterResponse
+     * @param callable|null $callback
+     * @return mixed
      */
-    public function apply(callable $callback);
+    public function apply(?callable $callback);
+
+    /**
+     * @param callable|null $callback
+     * @return mixed
+     */
+    public function delete(?callable $callback);
 
     /**
      * @param callable $callback

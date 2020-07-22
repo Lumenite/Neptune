@@ -5,7 +5,7 @@ namespace Lumenite\Neptune\Commands\Resources;
 use Lumenite\Neptune\Commands\Command;
 use Lumenite\Neptune\ResourceResponse\Response;
 use Lumenite\Neptune\Resources\AutoScale;
-use Lumenite\Neptune\Resources\Service;
+use Lumenite\Neptune\Resources\ResourceContract;
 
 /**
  * @package Lumenite\Neptune
@@ -18,10 +18,7 @@ class AutoScaleCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'resource:hpa
-    {app}
-    {version?}
-    {--delete : Delete the job resource}';
+    protected $signature = 'resource:hpa %s';
 
     /**
      * The console command description.
@@ -45,9 +42,10 @@ class AutoScaleCommand extends Command
     }
 
     /**
-     * @param AutoScale $service
+     * @param \Lumenite\Neptune\Resources\ResourceContract|AutoScale $autoScale
+     * @return mixed|void
      */
-    protected function apply(AutoScale $autoScale)
+    protected function apply(ResourceContract $autoScale)
     {
         $autoScale->apply(function ($stdout, Response $response) {
             $this->info("{$response->kind()}: {$response->name()} is been deployed.");
@@ -55,9 +53,10 @@ class AutoScaleCommand extends Command
     }
 
     /**
-     * @param AutoScale $autoScale
+     * @param \Lumenite\Neptune\Resources\ResourceContract|AutoScale $autoScale
+     * @return mixed|void
      */
-    protected function delete(AutoScale $autoScale)
+    protected function delete(ResourceContract $autoScale)
     {
         $autoScale->delete(function ($stdout) {
             $this->info($stdout);

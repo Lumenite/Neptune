@@ -2,7 +2,7 @@
 
 namespace Lumenite\Neptune\Commands\Release;
 
-use Lumenite\Neptune\Commands\Command;
+use Illuminate\Console\Command;
 use Lumenite\Neptune\Release;
 use Lumenite\Neptune\Resources\Job;
 use Lumenite\Neptune\Resources\PersistentVolumeClaim;

@@ -3,7 +3,8 @@
 namespace Lumenite\Neptune\Commands\Resources;
 
 use Lumenite\Neptune\Commands\Command;
-use Lumenite\Neptune\Resources\Deployment;
+use Lumenite\Neptune\Resources\ConfigMap;
+use Lumenite\Neptune\Resources\ResourceContract;
 
 /**
  * @package Lumenite\Neptune
@@ -16,10 +17,7 @@ class ConfigCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'resource:config 
-    {app} 
-    {version?}
-    {--delete : Delete a config resource from the kubernetes cluster.}';
+    protected $signature = 'resource:config %s';
 
     /**
      * The console command description.
@@ -29,36 +27,38 @@ class ConfigCommand extends Command
     protected $description = 'Deploy/Delete ConfigMap resource the application in kubernetes cluster.';
 
     /**
-     * @param Deployment $deployment
-     * @throws \Exception
+     * @param \Lumenite\Neptune\Resources\ConfigMap $configMap
+     * @throws \Lumenite\Neptune\Exceptions\DeploymentTerminatedException
+     * @throws \Lumenite\Neptune\Exceptions\NotFoundException
      */
-    public function handle(Deployment $deployment)
+    public function handle(ConfigMap $configMap)
     {
-        $deployment = $deployment->load(
+        $configMap = $configMap->load(
             $this->getResourceLoader()->getConfigPath(),
             $this->getResourceLoader()->getValues()
         );
 
-        $this->{$this->option('delete') ? 'delete' : 'apply'}($deployment);
+        $this->{$this->option('delete') ? 'delete' : 'apply'}($configMap);
     }
 
     /**
-     * @param Deployment $deployment
-     * @throws \Exception
+     * @param \Lumenite\Neptune\Resources\ResourceContract $configMap
+     * @return mixed|void
      */
-    protected function apply(Deployment $deployment)
+    protected function apply(ResourceContract $configMap)
     {
-        $response = $deployment->apply();
+        $response = $configMap->apply();
 
         $this->info("ConfigMap resource {$response->name()} deployed successfully.");
     }
 
     /**
-     * @param Deployment $deployment
+     * @param \Lumenite\Neptune\Resources\ResourceContract $configMap
+     * @return mixed|void
      */
-    public function delete(Deployment $deployment)
+    public function delete(ResourceContract $configMap)
     {
-        $deployment->delete(function ($stdout) {
+        $configMap->delete(function ($stdout) {
             $this->info("$stdout");
         });
     }
