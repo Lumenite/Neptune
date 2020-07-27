@@ -2,7 +2,6 @@
 
 namespace Lumenite\Neptune\Commands\Resources;
 
-use Lumenite\Neptune\Commands\Command;
 use Lumenite\Neptune\Resources\ResourceContract;
 use Lumenite\Neptune\Resources\Secret;
 
@@ -10,7 +9,7 @@ use Lumenite\Neptune\Resources\Secret;
  * @package Lumenite\Neptune
  * @author Mohammed Mudassir <hello@mudasir.me>
  */
-class SecretCommand extends Command
+class SecretResourceCommand extends ResourceCommand
 {
     /**
      * The name and signature of the console command.

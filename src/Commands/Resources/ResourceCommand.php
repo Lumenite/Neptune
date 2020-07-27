@@ -1,8 +1,8 @@
 <?php
 
-namespace Lumenite\Neptune\Commands;
+namespace Lumenite\Neptune\Commands\Resources;
 
-use Illuminate\Console\Command as LaravelCommand;
+use Illuminate\Console\Command;
 use Lumenite\Neptune\Exceptions\DeploymentTerminatedException;
 use Lumenite\Neptune\ResourceLoader;
 use Lumenite\Neptune\Resources\ResourceContract;
@@ -11,13 +11,13 @@ use Lumenite\Neptune\Resources\ResourceContract;
  * @package Lumenite\Neptune
  * @author Mohammed Mudassir <hello@mudasir.me>
  */
-abstract class Command extends LaravelCommand
+abstract class ResourceCommand extends Command
 {
     /** @var string $defaultSignatureSuffix */
     protected $defaultSignatureSuffix = '
     {app}
     {version?}
-    {--delete : Delete the job resource}
+    {--delete : Delete the given resource}
     {--production : Overwrite the existing namespace and deploy on production}';
 
     /** @var ResourceLoader $resourceLoader */

@@ -47,4 +47,8 @@ do
     fi
 done
 
+if [[ -d "/config/php-fpm" ]]; then
+    cp -R /config/php-fpm/* /etc/php/7.2/fpm/conf.d/
+fi
+
 exec $@

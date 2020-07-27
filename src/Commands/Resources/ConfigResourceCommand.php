@@ -2,7 +2,6 @@
 
 namespace Lumenite\Neptune\Commands\Resources;
 
-use Lumenite\Neptune\Commands\Command;
 use Lumenite\Neptune\Resources\ConfigMap;
 use Lumenite\Neptune\Resources\ResourceContract;
 
@@ -10,7 +9,7 @@ use Lumenite\Neptune\Resources\ResourceContract;
  * @package Lumenite\Neptune
  * @author Mohammed Mudassir <hello@mudasir.me>
  */
-class ConfigCommand extends Command
+class ConfigResourceCommand extends ResourceCommand
 {
     /**
      * The name and signature of the console command.

@@ -72,6 +72,15 @@ class ResourceLoader
      * @return string
      * @throws \Lumenite\Neptune\Exceptions\NotFoundException
      */
+    public function getValuesFilePath()
+    {
+        return $this->getReleasePath(Release::VALUES_FILE);
+    }
+
+    /**
+     * @return string
+     * @throws \Lumenite\Neptune\Exceptions\NotFoundException
+     */
     public function getServicePath()
     {
         return $this->getReleasePath(Release::SERVICE_FILE);
@@ -93,9 +102,9 @@ class ResourceLoader
     public function getDeploymentPath()
     {
         try {
-            return $this->getReleasePath(Release::APP_FILE);
-        } catch (NotFoundException $exception) {
             return $this->getReleasePath(Release::DEPLOYMENT_FILE);
+        } catch (NotFoundException $exception) {
+            return $this->getReleasePath(Release::APP_FILE);
         }
     }
 
@@ -170,7 +179,7 @@ class ResourceLoader
      * @throw \Exception
      * @throws \Lumenite\Neptune\Exceptions\NotFoundException
      */
-    protected function getReleasePath($suffix = '')
+    public function getReleasePath($suffix = '')
     {
         if (!$this->releaseName) {
             throw new Exception('Release name is not set.');
@@ -185,5 +194,21 @@ class ResourceLoader
         }
 
         throw new NotFoundException("$path is not present");
+    }
+
+    /**
+     * @param string $file
+     * @param array $placeHolders
+     * @return mixed
+     */
+    public function load(string $file, array $placeHolders = [])
+    {
+        $content = file_get_contents($file);
+
+        foreach ($placeHolders as $key => $value) {
+            $content = preg_replace("/\{\{\s?\.$key\s?\}\}/i", $value, $content);
+        }
+
+        return $this->yaml::parse($content);
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Lumenite\Neptune\Commands\Resources;
 
-use Lumenite\Neptune\Commands\Command;
 use Lumenite\Neptune\Resources\ResourceContract;
 use Lumenite\Neptune\Resources\Service;
 
@@ -10,7 +9,7 @@ use Lumenite\Neptune\Resources\Service;
  * @package Lumenite\Neptune
  * @author Mohammed Mudassir <hello@mudasir.me>
  */
-class ServiceCommand extends Command
+class ServiceResourceCommand extends ResourceCommand
 {
     /**
      * The name and signature of the console command.

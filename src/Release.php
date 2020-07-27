@@ -51,6 +51,14 @@ class Release
     const SERVICE_FILE = 'service.yml';
 
     /**
+     * Values file is the holder of application configuration.
+     * Directly is it not the part of kubernetes resource
+     *
+     * @var string
+     */
+    const VALUES_FILE = 'values.yml';
+
+    /**
      * Horizontal pod autoscaling file for the application.
      *
      * @var string
