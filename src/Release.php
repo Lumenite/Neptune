@@ -107,6 +107,9 @@ class Release
     /** @var Deployment $app */
     protected $app;
 
+    /** @var bool $isProduction */
+    protected $isProduction;
+
     /**
      * @param ResourceLoader $resourceLoader
      * @param ConfigMap $config
@@ -202,6 +205,17 @@ class Release
     {
         $this->resourceLoader->setVersion($version);
         $this->version = $version;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function isProduction()
+    {
+        $this->resourceLoader->setNamespace('production');
+        $this->isProduction = true;
 
         return $this;
     }

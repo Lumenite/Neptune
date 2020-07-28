@@ -37,18 +37,20 @@ class JobResourceCommand extends ResourceCommand
     }
 
     /**
-     * @param \Lumenite\Neptune\Resources\ResourceContract|Job $job
+     * @param \Lumenite\Neptune\Resources\ResourceContract $job
      * @return mixed|void
      */
     public function apply(ResourceContract $job)
     {
-        $response = $job->apply();
+        $response = $job->apply(function ($stdout) {
+            $this->line(trim($stdout));
+        });
 
         $this->info("Job resource {$response->name()} deployed successfully.");
     }
 
     /**
-     * @param \Lumenite\Neptune\Resources\ResourceContract|Job $job
+     * @param \Lumenite\Neptune\Resources\ResourceContract $job
      * @return mixed|void
      */
     public function delete(ResourceContract $job)

@@ -4,6 +4,7 @@ namespace Lumenite\Neptune\Commands\Release;
 
 use Illuminate\Console\Command;
 use Lumenite\Neptune\Release;
+use Lumenite\Neptune\ResourceResponse\JobResponse;
 use Lumenite\Neptune\Resources\Job;
 use Lumenite\Neptune\Resources\PersistentVolumeClaim;
 
@@ -18,7 +19,10 @@ class PublishReleaseCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'release:publish {app} {version?}';
+    protected $signature = 'release:publish
+    {app}
+    {version?}
+    {--production : Overwrite namespace to production from values.yml}';
 
     /**
      * The console command description.
@@ -33,6 +37,10 @@ class PublishReleaseCommand extends Command
      */
     public function handle(Release $release)
     {
+        if ($this->option('production')) {
+            $release->isProduction();
+        }
+
         $release = $release->load($this->argument('app'), $this->argument('version'));
 
         $release->getConfig()->apply();
@@ -41,14 +49,7 @@ class PublishReleaseCommand extends Command
         $release->getSecret()->apply();
         $this->info("Secret deployed successfully.");
 
-        $this->deployPersistentVolumeClaim($release->getDisk());
-
-        # Give sometime for pvc to initialize
-        sleep(3);
-
-        $this->deployJob($release->getArtifact());
-
-//        $this->followJob($release->getArtifact());
+        $this->deployPersistentVolumeClaim($release->getDisk())->deployJob($release->getArtifact());
 
         $release->getService()->apply();
         $this->info("Service deployed successfully.");
@@ -58,8 +59,8 @@ class PublishReleaseCommand extends Command
     }
 
     /**
-     * @param PersistentVolumeClaim $pvc
-     * @return \Lumenite\Neptune\Kubectl|\Lumenite\Neptune\Resources\ResourceContract
+     * @param \Lumenite\Neptune\Resources\PersistentVolumeClaim $pvc
+     * @return $this
      * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
      */
     protected function deployPersistentVolumeClaim(PersistentVolumeClaim $pvc)
@@ -71,35 +72,30 @@ class PublishReleaseCommand extends Command
         $this->info("Waiting for PVC '{$response->name()}' to get initialize.");
         $bar = $this->output->createProgressBar(10);
         $bar->start();
-        $kubectl = $pvc->wait(function () use ($bar) {
+        $pvc->wait(function () use ($bar) {
             $bar->advance();
         });
         $bar->finish();
 
-        return $kubectl;
+        return $this;
     }
 
     /**
-     * @param Job $job
-     * @return \Lumenite\Neptune\Kubectl|\Lumenite\Neptune\Resources\ResourceContract
+     * @param \Lumenite\Neptune\Resources\Job $job
+     * @return \Lumenite\Neptune\ResourceResponse\ClusterResponse|mixed
      * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
      */
     protected function deployJob(Job $job)
     {
-        $response = $job->apply();
-        $this->info("\n\nJob '{$response->name()}' initialized.");
+        return $job->apply(function ($stdout, JobResponse $response) use ($job) {
+            $this->info("\n\nJob '{$response->name()}' initialized.");
 
-        return $job->wait();
-    }
+            # wait for the containers inside pod to be created
+            sleep(3);
 
-    /**
-     * @param Job $job
-     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
-     */
-    protected function followJob(Job $job)
-    {
-        $job->follow(function ($stdout) {
-            $this->getOutput()->write($stdout);
+            $job->wait()->logs($job, function ($stdout) {
+                $this->line(trim($stdout));
+            });
         });
     }
 }

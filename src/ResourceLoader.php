@@ -3,14 +3,16 @@
 namespace Lumenite\Neptune;
 
 use Exception;
+use Illuminate\Contracts\Support\Arrayable;
 use Lumenite\Neptune\Exceptions\NotFoundException;
+use Symfony\Component\Translation\Exception\NotFoundResourceException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
  * @package Lumenite\Neptune
  * @author Mohammed Mudassir <hello@mudasir.me>
  */
-class ResourceLoader
+class ResourceLoader implements Arrayable
 {
     /** @var string */
     protected $releaseName;
@@ -26,6 +28,9 @@ class ResourceLoader
 
     /** @var Yaml $yaml */
     protected $yaml;
+
+    /** @var string $content */
+    protected $content;
 
     /**
      * @param Yaml $yaml
@@ -199,7 +204,7 @@ class ResourceLoader
     /**
      * @param string $file
      * @param array $placeHolders
-     * @return mixed
+     * @return $this
      */
     public function load(string $file, array $placeHolders = [])
     {
@@ -209,6 +214,28 @@ class ResourceLoader
             $content = preg_replace("/\{\{\s?\.$key\s?\}\}/i", $value, $content);
         }
 
-        return $this->yaml::parse($content);
+        $this->content = $content;
+
+        return $this;
+    }
+
+    /**
+     * @return array|mixed
+     */
+    public function toArray()
+    {
+        if (!$this->content) {
+            throw new NotFoundResourceException('Resource not loaded.');
+        }
+
+        return $this->yaml::parse($this->content);
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->content;
     }
 }

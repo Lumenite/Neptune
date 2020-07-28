@@ -32,12 +32,11 @@ class DeploymentResourceCommand extends ResourceCommand
      */
     public function handle(Deployment $deployment)
     {
-        parent::defaultHandle($deployment);
+        $this->defaultHandle($deployment);
     }
 
     /**
-     * @param \Lumenite\Neptune\Resources\ResourceContract|Deployment $configMap
-     * @return mixed|void
+     * @param \Lumenite\Neptune\Resources\ResourceContract $configMap
      * @throws \Lumenite\Neptune\Exceptions\NotFoundException
      */
     protected function apply(ResourceContract $configMap)
@@ -49,7 +48,7 @@ class DeploymentResourceCommand extends ResourceCommand
     }
 
     /**
-     * @param \Lumenite\Neptune\Resources\ResourceContract|Deployment $configMap
+     * @param \Lumenite\Neptune\Resources\ResourceContract $configMap
      */
     protected function delete(ResourceContract $configMap)
     {

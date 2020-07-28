@@ -26,13 +26,13 @@ interface ResourceContract
      * @param callable|null $callback
      * @return mixed
      */
-    public function apply(?callable $callback);
+    public function apply(?callable $callback = null);
 
     /**
      * @param callable|null $callback
      * @return mixed
      */
-    public function delete(?callable $callback);
+    public function delete(?callable $callback = null);
 
     /**
      * @param callable $callback
