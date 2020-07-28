@@ -2,8 +2,8 @@
 
 namespace Lumenite\Neptune\Commands\Release;
 
+use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
-use Lumenite\Neptune\Commands\Command;
 
 /**
  * @package Lumenite\Neptune

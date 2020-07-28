@@ -8,6 +8,7 @@ use Lumenite\Neptune\ResourceResponse\ClusterResponse;
 use Lumenite\Neptune\ResourceResponse\Response;
 use Lumenite\Neptune\Resources\Resource;
 use Lumenite\Neptune\Resources\ResourceContract;
+use Symfony\Component\Process\InputStream;
 use Symfony\Component\Process\Process;
 
 /**
@@ -108,19 +109,27 @@ class Kubectl
     }
 
     /**
-     * @param Resource $resource
-     * @param callable $callback
-     * @return Process
-     * @throws ResourceDeploymentException
+     * @param \Lumenite\Neptune\Resources\Resource $resource
+     * @param callable|null $callback
+     * @return \Symfony\Component\Process\Process
+     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
      */
-    public function logs(Resource $resource, callable $callback)
+    public function logs(Resource $resource, ?callable $callback)
     {
         $this->verifyResource($resource);
 
         $process = new Process([
-            'kubectl', 'logs', '-f', $resource->getKind(), $resource->getName(), '-n', $resource->getNamespace(),
+            'kubectl',
+            'logs',
+            '-n',
+            $resource->getNamespace(),
+            '-l',
+            "job-name={$resource->getName()}",
+            '--all-containers=true',
+            '-f',
         ]);
 
+        $process->setTimeout(null);
         $process->enableOutput();
 
         $process->run($this->handleOutput($resource, $callback));

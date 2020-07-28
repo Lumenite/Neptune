@@ -3,7 +3,7 @@
 namespace Lumenite\Neptune\Commands\Release;
 
 use Exception;
-use Lumenite\Neptune\Commands\Command;
+use Illuminate\Console\Command;
 use Lumenite\Neptune\Release;
 
 /**

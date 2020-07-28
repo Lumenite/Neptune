@@ -13,7 +13,7 @@ class JobResponse extends Response
      */
     public function isPending()
     {
-        if ($this->response->get('status.succeeded')) {
+        if (@$this->response->get('status')['succeeded']) {
             return false;
         }
 

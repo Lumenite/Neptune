@@ -2,7 +2,7 @@
 
 namespace Lumenite\Neptune\Commands\Release;
 
-use Lumenite\Neptune\Commands\Command;
+use Illuminate\Console\Command;
 
 /**
  * @author Mohammed Mudassir <hello@mudasir.me>

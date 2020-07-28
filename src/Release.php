@@ -51,11 +51,34 @@ class Release
     const SERVICE_FILE = 'service.yml';
 
     /**
+     * Values file is the holder of application configuration.
+     * Directly is it not the part of kubernetes resource
+     *
+     * @var string
+     */
+    const VALUES_FILE = 'values.yml';
+
+    /**
+     * Horizontal pod autoscaling file for the application.
+     *
+     * @var string
+     */
+    const HPA_FILE = 'hpa.yml';
+
+    /**
+     * Deployment file which will handle the application request
+     *
+     * @deprecated
+     * @var string
+     */
+    const APP_FILE = 'app.yml';
+
+    /**
      * Deployment file which will handle the application request
      *
      * @var string
      */
-    const APP_FILE = 'app.yml';
+    const DEPLOYMENT_FILE = 'deployment.yml';
 
     /** @var string $name Name of the Release */
     protected $name;
@@ -83,6 +106,9 @@ class Release
 
     /** @var Deployment $app */
     protected $app;
+
+    /** @var bool $isProduction */
+    protected $isProduction;
 
     /**
      * @param ResourceLoader $resourceLoader
@@ -184,6 +210,17 @@ class Release
     }
 
     /**
+     * @return $this
+     */
+    public function isProduction()
+    {
+        $this->resourceLoader->setNamespace('production');
+        $this->isProduction = true;
+
+        return $this;
+    }
+
+    /**
      * @param $name
      * @param null $version
      * @return $this
@@ -198,7 +235,7 @@ class Release
         $this->disk->load($this->resourceLoader->getDiskPath(), $this->resourceLoader->getValues());
         $this->artifact->load($this->resourceLoader->getArtifactPath(), $this->resourceLoader->getValues());
         $this->service->load($this->resourceLoader->getServicePath(), $this->resourceLoader->getValues());
-        $this->app->load($this->resourceLoader->getAppPath(), $this->resourceLoader->getValues());
+        $this->app->load($this->resourceLoader->getDeploymentPath(), $this->resourceLoader->getValues());
 
         return $this;
     }

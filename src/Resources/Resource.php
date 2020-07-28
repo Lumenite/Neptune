@@ -5,6 +5,7 @@ namespace Lumenite\Neptune\Resources;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
 use Lumenite\Neptune\Kubectl;
+use Lumenite\Neptune\ResourceLoader;
 use Lumenite\Neptune\ResourceResponse\Response;
 use Symfony\Component\Yaml\Yaml;
 
@@ -16,8 +17,8 @@ use Symfony\Component\Yaml\Yaml;
  */
 abstract class Resource implements ResourceContract
 {
-    /** @var Yaml $yaml */
-    protected $yaml;
+    /** @var ResourceLoader $resourceLoader */
+    protected $resourceLoader;
 
     /** @var Filesystem $filesystem */
     protected $filesystem;
@@ -32,13 +33,13 @@ abstract class Resource implements ResourceContract
     protected $config;
 
     /**
-     * @param Yaml $yaml
-     * @param Filesystem $filesystem
-     * @param Kubectl $kubectl
+     * @param \Lumenite\Neptune\ResourceLoader $resourceLoader
+     * @param \Illuminate\Filesystem\Filesystem $filesystem
+     * @param \Lumenite\Neptune\Kubectl $kubectl
      */
-    public function __construct(Yaml $yaml, Filesystem $filesystem, Kubectl $kubectl)
+    public function __construct(ResourceLoader $resourceLoader, Filesystem $filesystem, Kubectl $kubectl)
     {
-        $this->yaml = $yaml;
+        $this->resourceLoader = $resourceLoader;
         $this->filesystem = $filesystem;
         $this->kubectl = $kubectl;
     }
@@ -50,24 +51,20 @@ abstract class Resource implements ResourceContract
      */
     public function load(string $file, array $placeHolders = [])
     {
-        $content = file_get_contents($file);
-
-        foreach ($placeHolders as $key => $value) {
-            $content = preg_replace("/\{\{\s?\.$key\s?\}\}/i", $value, $content);
-        }
-
-        $this->config = collect($this->yaml::parse($content));
+        $this->config = collect($this->resourceLoader->load($file, $placeHolders));
 
         $this->filesystem->put(
             $this->filePath = NEPTUNE_EXEC_PATH. "/storage/k8s/{$this->getName()}.{$this->getKind()}.yml",
-            $content
+            $this->resourceLoader
         );
 
         return $this;
     }
 
     /**
-     * @inheritdoc
+     * @param callable|null $callback
+     * @return \Lumenite\Neptune\ResourceResponse\ClusterResponse|mixed
+     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
      */
     public function apply(callable $callback = null)
     {
@@ -75,7 +72,9 @@ abstract class Resource implements ResourceContract
     }
 
     /**
-     * @inheritdoc
+     * @param callable|null $callback
+     * @return \Lumenite\Neptune\ResourceResponse\ClusterResponse|mixed
+     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
      */
     public function delete(callable $callback = null)
     {
@@ -83,7 +82,9 @@ abstract class Resource implements ResourceContract
     }
 
     /**
-     * @inheritdoc
+     * @param callable|null $callback
+     * @return \Lumenite\Neptune\ResourceResponse\ClusterResponse
+     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
      */
     public function get(callable $callback = null)
     {
@@ -107,7 +108,7 @@ abstract class Resource implements ResourceContract
      */
     public function follow(callable $callback = null)
     {
-        return $this->kubectl->logs($this, $callback)->getOutput();
+        return $this->kubectl->logs($this, $callback);
     }
 
     /**
