@@ -51,14 +51,6 @@ class Release
     const SERVICE_FILE = 'service.yml';
 
     /**
-     * Values file is the holder of application configuration.
-     * Directly is it not the part of kubernetes resource
-     *
-     * @var string
-     */
-    const VALUES_FILE = 'values.yml';
-
-    /**
      * Horizontal pod autoscaling file for the application.
      *
      * @var string
@@ -68,7 +60,7 @@ class Release
     /**
      * Deployment file which will handle the application request
      *
-     * @deprecated
+     * @deprecated in favour of DEPLOYMENT_FILE
      * @var string
      */
     const APP_FILE = 'app.yml';
@@ -79,6 +71,14 @@ class Release
      * @var string
      */
     const DEPLOYMENT_FILE = 'deployment.yml';
+
+    /**
+     * Values file is the holder of application configuration.
+     * Please note directly is it not the part of kubernetes resource
+     *
+     * @var string
+     */
+    const VALUES_FILE = 'values.yml';
 
     /** @var string $name Name of the Release */
     protected $name;
@@ -107,8 +107,8 @@ class Release
     /** @var Deployment $app */
     protected $app;
 
-    /** @var bool $isProduction */
-    protected $isProduction;
+    /** @var bool $onProduction */
+    protected $onProduction;
 
     /**
      * @param ResourceLoader $resourceLoader
@@ -212,10 +212,10 @@ class Release
     /**
      * @return $this
      */
-    public function isProduction()
+    public function onProduction()
     {
         $this->resourceLoader->setNamespace('production');
-        $this->isProduction = true;
+        $this->onProduction = true;
 
         return $this;
     }
@@ -229,13 +229,12 @@ class Release
     public function load($name, $version = null)
     {
         $this->setName($name)->setVersion($version);
-
-        $this->config->load($this->resourceLoader->getConfigPath(), $this->resourceLoader->getValues());
-        $this->secret->load($this->resourceLoader->getSecretPath(), $this->resourceLoader->getValues());
-        $this->disk->load($this->resourceLoader->getDiskPath(), $this->resourceLoader->getValues());
-        $this->artifact->load($this->resourceLoader->getArtifactPath(), $this->resourceLoader->getValues());
-        $this->service->load($this->resourceLoader->getServicePath(), $this->resourceLoader->getValues());
-        $this->app->load($this->resourceLoader->getDeploymentPath(), $this->resourceLoader->getValues());
+        $this->config->load($this->resourceLoader->getConfigPath(), $this->resourceLoader);
+        $this->secret->load($this->resourceLoader->getSecretPath(), $this->resourceLoader);
+        $this->disk->load($this->resourceLoader->getDiskPath(), $this->resourceLoader);
+        $this->artifact->load($this->resourceLoader->getArtifactPath(), $this->resourceLoader);
+        $this->service->load($this->resourceLoader->getServicePath(), $this->resourceLoader);
+        $this->app->load($this->resourceLoader->getDeploymentPath(), $this->resourceLoader);
 
         return $this;
     }

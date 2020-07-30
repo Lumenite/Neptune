@@ -32,30 +32,32 @@ abstract class Resource implements ResourceContract
     /** @var Collection $config */
     protected $config;
 
+    /** @var \Lumenite\Neptune\Values $values */
+    protected $values;
+
     /**
-     * @param \Lumenite\Neptune\ResourceLoader $resourceLoader
      * @param \Illuminate\Filesystem\Filesystem $filesystem
      * @param \Lumenite\Neptune\Kubectl $kubectl
      */
-    public function __construct(ResourceLoader $resourceLoader, Filesystem $filesystem, Kubectl $kubectl)
+    public function __construct(Filesystem $filesystem, Kubectl $kubectl)
     {
-        $this->resourceLoader = $resourceLoader;
         $this->filesystem = $filesystem;
         $this->kubectl = $kubectl;
     }
 
     /**
      * @param string $file
-     * @param array $placeHolders
+     * @param \Lumenite\Neptune\ResourceLoader $resourceLoader
      * @return $this|mixed
+     * @throws \Lumenite\Neptune\Exceptions\NotFoundException
      */
-    public function load(string $file, array $placeHolders = [])
+    public function load(string $file, ResourceLoader $resourceLoader)
     {
-        $this->config = collect($this->resourceLoader->load($file, $placeHolders));
+        $this->config = collect($resourceLoader->load($file, $this->values = $resourceLoader->getValues()));
 
         $this->filesystem->put(
             $this->filePath = NEPTUNE_EXEC_PATH. "/storage/k8s/{$this->getName()}.{$this->getKind()}.yml",
-            $this->resourceLoader
+            $resourceLoader
         );
 
         return $this;
@@ -93,22 +95,32 @@ abstract class Resource implements ResourceContract
 
     /**
      * @param callable|null $callback
-     * @return Kubectl|ResourceContract
+     * @return $this|\Lumenite\Neptune\Resources\ResourceContract
      * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
      */
     public function wait(callable $callback = null)
     {
-        return $this->kubectl->wait($this, $callback);
+        $this->kubectl->wait($this, $callback);
+
+        return $this;
     }
 
     /**
      * @param callable|null $callback
-     * @return string
+     * @return bool
      * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
      */
     public function follow(callable $callback = null)
     {
-        return $this->kubectl->logs($this, $callback);
+        if (! $job = @$this->values->get('resource_logs')['jobs']) {
+            return false;
+        }
+
+        foreach ($job as $container) {
+            $this->kubectl->logs($this, $container, $callback);
+        }
+
+        return true;
     }
 
     /**

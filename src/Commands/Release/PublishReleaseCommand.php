@@ -31,6 +31,9 @@ class PublishReleaseCommand extends Command
      */
     protected $description = 'Publish a release to kubernetes cluster.';
 
+    /** @var Release $release */
+    protected $release;
+
     /**
      * @param Release $release
      * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException|\Exception
@@ -38,10 +41,10 @@ class PublishReleaseCommand extends Command
     public function handle(Release $release)
     {
         if ($this->option('production')) {
-            $release->isProduction();
+            $release->onProduction();
         }
 
-        $release = $release->load($this->argument('app'), $this->argument('version'));
+        $this->release = $release = $release->load($this->argument('app'), $this->argument('version'));
 
         $release->getConfig()->apply();
         $this->info("ConfigMap deployed successfully.");
@@ -90,10 +93,7 @@ class PublishReleaseCommand extends Command
         return $job->apply(function ($stdout, JobResponse $response) use ($job) {
             $this->info("\n\nJob '{$response->name()}' initialized.");
 
-            # wait for the containers inside pod to be created
-            sleep(3);
-
-            $job->wait()->logs($job, function ($stdout) {
+            $job->wait()->follow(function ($stdout) {
                 $this->line(trim($stdout));
             });
         });

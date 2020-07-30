@@ -34,7 +34,7 @@ class AutoScaleResourceCommand extends ResourceCommand
     {
         $autoScale = $autoScale->load(
             $this->getResourceLoader()->getHpaPath(),
-            $this->getResourceLoader()->getValues()
+            $this->getResourceLoader()
         );
 
         $this->{$this->option('delete') ? 'delete' : 'apply'}($autoScale);

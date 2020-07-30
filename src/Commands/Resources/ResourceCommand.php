@@ -74,7 +74,6 @@ abstract class ResourceCommand extends Command
     /**
      * @param \Lumenite\Neptune\Resources\ResourceContract $resource
      * @throws \Lumenite\Neptune\Exceptions\DeploymentTerminatedException
-     * @throws \Lumenite\Neptune\Exceptions\NotFoundException
      */
     public function defaultHandle(ResourceContract $resource)
     {
@@ -82,7 +81,7 @@ abstract class ResourceCommand extends Command
 
         $deployment = $resource->load(
             $this->resourceLoader->{'get' . $resource->getKind() . 'Path'}(),
-            $this->resourceLoader->getValues()
+            $this->resourceLoader
         );
 
         $this->{$this->option('delete') ? 'delete' : 'apply'}($deployment);

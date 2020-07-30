@@ -33,7 +33,7 @@ class SecretResourceCommand extends ResourceCommand
     {
         $secret = $secret->load(
             $this->getResourceLoader()->getSecretPath(),
-            $this->getResourceLoader()->getValues()
+            $this->getResourceLoader()
         );
 
         $this->{$this->option('delete') ? 'delete' : 'apply'}($secret);
