@@ -112,7 +112,7 @@ abstract class Resource implements ResourceContract
      */
     public function follow(callable $callback = null)
     {
-        if (! $job = @$this->values->get('resource_logs')['jobs']) {
+        if (! $job = @$this->values->get('resources')['job']) {
             return false;
         }
 

@@ -13,12 +13,19 @@ class Values implements Arrayable
     /** @var \Illuminate\Support\Collection $properties */
     protected $properties;
 
+    /**
+     * @param $file
+     * @param array $primaryValues
+     */
     public function __construct($file, $primaryValues = [])
     {
         $this->properties = collect(Yaml::parseFile($file));
 
-        $this->properties['namespace'] = $primaryValues['namespace'] ?? $this->properties['namespace'];
-        $this->properties['version'] = 'v' . ($primaryValues['version'] ?? $this->properties['version']);
+        foreach ($primaryValues as $key => $value) {
+            if ($value) {
+                $this->properties[$key] = $value;
+            }
+        }
     }
 
     /**
@@ -31,7 +38,9 @@ class Values implements Arrayable
         return $this->properties->$name(...$arguments);
     }
 
-
+    /**
+     * @return array
+     */
     public function toArray()
     {
         return $this->properties->toArray();
