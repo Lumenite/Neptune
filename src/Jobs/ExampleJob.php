@@ -1,6 +1,6 @@
 <?php
 
-namespace Lumenite\Neptune\Jobs;
+namespace Lumenite\Neptune\Drivers\Jobs;
 
 class ExampleJob extends Job
 {

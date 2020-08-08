@@ -36,16 +36,22 @@ interface ResourceContract
     public function delete(callable $callback = null);
 
     /**
-     * @param callable $callback
+     * @param callable|null $callback
      * @return ClusterResponse
      */
-    public function get(callable $callback);
+    public function get(callable $callback = null);
 
     /**
-     * @param callable $callback
-     * @return self
+     * @param callable|null $callback
+     * @return mixed
      */
-    public function wait(callable $callback);
+    public function wait(callable $callback = null);
+
+    /**
+     * @param callable|null $callback
+     * @return mixed
+     */
+    public function follow(callable $callback = null);
 
     /**
      * @return string

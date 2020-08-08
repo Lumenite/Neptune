@@ -1,6 +1,6 @@
 <?php
 
-namespace Lumenite\Neptune\Events;
+namespace Lumenite\Neptune\Drivers\Events;
 
 class ExampleEvent extends Event
 {

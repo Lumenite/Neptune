@@ -42,7 +42,8 @@ class JobResourceCommand extends ResourceCommand
      */
     public function apply(ResourceContract $job)
     {
-        $response = $job->apply(function ($stdout) {
+        $response = $job->apply();
+        $job->wait()->follow(function ($stdout) {
             $this->line(trim($stdout));
         });
 

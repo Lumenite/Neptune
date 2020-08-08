@@ -1,6 +1,6 @@
 <?php
 
-namespace Lumenite\Neptune\Http\Controllers;
+namespace Lumenite\Neptune\Drivers\Http\Controllers;
 
 use Laravel\Lumen\Routing\Controller as BaseController;
 

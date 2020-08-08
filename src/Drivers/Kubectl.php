@@ -1,9 +1,10 @@
 <?php
 
-namespace Lumenite\Neptune;
+namespace Lumenite\Neptune\Drivers;
 
 use Illuminate\Filesystem\Filesystem;
 use Lumenite\Neptune\Exceptions\ResourceDeploymentException;
+use Lumenite\Neptune\Process;
 use Lumenite\Neptune\ResourceResponse\ClusterResponse;
 use Lumenite\Neptune\Resources\Resource;
 use Lumenite\Neptune\Resources\ResourceContract;
@@ -13,7 +14,7 @@ use Lumenite\Neptune\Resources\ResourceContract;
  *
  * @package Modelizer\Lanton
  */
-class Kubectl
+class Kubectl implements DriverContract
 {
     /** @var Filesystem $fileManager */
     protected $fileManager;
@@ -146,7 +147,7 @@ class Kubectl
      * @param string $prefixStdout
      * @return \Closure
      */
-    public function handleOutput(ResourceContract $resource, callable $callback = null, $prefixStdout = '')
+    protected function handleOutput(ResourceContract $resource, callable $callback = null, $prefixStdout = '')
     {
         return function ($status, $stdout) use ($resource, $callback, $prefixStdout) {
             $stdout = $prefixStdout . $stdout;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Lumenite\Neptune\Http\Controllers;
+namespace Lumenite\Neptune\Drivers\Http\Controllers;
 
 class ExampleController extends Controller
 {

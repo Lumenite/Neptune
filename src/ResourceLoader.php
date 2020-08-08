@@ -172,7 +172,7 @@ class ResourceLoader implements Arrayable
      */
     public function get($key)
     {
-        return $this->getValues()[$key];
+        return $this->getValues()->get($key);
     }
 
     /**

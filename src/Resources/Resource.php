@@ -2,12 +2,14 @@
 
 namespace Lumenite\Neptune\Resources;
 
+use Exception;
+use Illuminate\Console\Concerns\InteractsWithIO;
+use Illuminate\Console\OutputStyle;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
-use Lumenite\Neptune\Kubectl;
+use Lumenite\Neptune\Drivers\Kubectl;
 use Lumenite\Neptune\ResourceLoader;
 use Lumenite\Neptune\ResourceResponse\Response;
-use Symfony\Component\Yaml\Yaml;
 
 /**
  * A kubernetes resource abstraction layer.
@@ -17,6 +19,8 @@ use Symfony\Component\Yaml\Yaml;
  */
 abstract class Resource implements ResourceContract
 {
+    use InteractsWithIO;
+
     /** @var ResourceLoader $resourceLoader */
     protected $resourceLoader;
 
@@ -35,9 +39,12 @@ abstract class Resource implements ResourceContract
     /** @var \Lumenite\Neptune\Values $values */
     protected $values;
 
+    /** @var OutputStyle $output */
+    protected $output;
+
     /**
      * @param \Illuminate\Filesystem\Filesystem $filesystem
-     * @param \Lumenite\Neptune\Kubectl $kubectl
+     * @param \Lumenite\Neptune\Drivers\Kubectl $kubectl
      */
     public function __construct(Filesystem $filesystem, Kubectl $kubectl)
     {
@@ -56,7 +63,7 @@ abstract class Resource implements ResourceContract
         $this->config = collect($resourceLoader->load($file, $this->values = $resourceLoader->getValues()));
 
         $this->filesystem->put(
-            $this->filePath = NEPTUNE_EXEC_PATH. "/storage/k8s/{$this->getName()}.{$this->getKind()}.yml",
+            $this->filePath = NEPTUNE_EXEC_PATH . "/storage/k8s/{$this->getName()}.{$this->getKind()}.yml",
             $resourceLoader
         );
 
@@ -109,11 +116,12 @@ abstract class Resource implements ResourceContract
      * @param callable|null $callback
      * @return bool
      * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
+     * @throws \Exception
      */
     public function follow(callable $callback = null)
     {
-        if (! $job = @$this->values->get('resources')['job']) {
-            return false;
+        if (!$job = @$this->values->get('resources')['artifact_containers']) {
+            throw new Exception('No resources artifact_containers given in values.yml to follow logs.');
         }
 
         foreach ($job as $container) {
@@ -161,5 +169,29 @@ abstract class Resource implements ResourceContract
     public function getResponseClass()
     {
         return Response::class;
+    }
+
+    /**
+     * @param \Illuminate\Console\OutputStyle $output
+     */
+    public function setOutput(OutputStyle $output)
+    {
+        $this->output = $output;
+    }
+
+    /**
+     * @return \Closure
+     */
+    public function defaultOutput()
+    {
+//        if (! $this->output) {
+//            $this->output = app(OutputStyle::class);
+//        }
+
+        return function ($stdout) {
+            if ($stdout) {
+                $this->line(trim($stdout));
+            }
+        };
     }
 }
