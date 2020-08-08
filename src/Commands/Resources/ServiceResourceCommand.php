@@ -33,7 +33,7 @@ class ServiceResourceCommand extends ResourceCommand
     {
         $service = $service->load(
             $this->getResourceLoader()->getServicePath(),
-            $this->getResourceLoader()->getValues()
+            $this->getResourceLoader()
         );
 
         $this->{$this->option('delete') ? 'delete' : 'apply'}($service);

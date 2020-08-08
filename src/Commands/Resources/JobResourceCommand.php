@@ -31,7 +31,7 @@ class JobResourceCommand extends ResourceCommand
      */
     public function handle(Job $job)
     {
-        $job = $job->load($this->getResourceLoader()->getArtifactPath(), $this->getResourceLoader()->getValues());
+        $job = $job->load($this->getResourceLoader()->getArtifactPath(), $this->getResourceLoader());
 
         $this->{$this->option('delete') ? 'delete' : 'apply'}($job);
     }
@@ -42,7 +42,8 @@ class JobResourceCommand extends ResourceCommand
      */
     public function apply(ResourceContract $job)
     {
-        $response = $job->apply(function ($stdout) {
+        $response = $job->apply();
+        $job->wait()->follow(function ($stdout) {
             $this->line(trim($stdout));
         });
 
@@ -56,7 +57,7 @@ class JobResourceCommand extends ResourceCommand
     public function delete(ResourceContract $job)
     {
         $job->delete(function ($stdout) {
-            $this->info($stdout);
+            $this->line(trim($stdout));
         });
     }
 }

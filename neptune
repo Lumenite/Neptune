@@ -39,13 +39,36 @@ require NEPTUNE_COMPOSER_INSTALL;
 | Create The Application
 |--------------------------------------------------------------------------
 |
-| First we need to get an application instance. This creates an instance
-| of the application / container and bootstraps the application so it
-| is ready to receive HTTP / Console requests from the environment.
+| Here we will load the environment and create the application instance
+| that serves as the central piece of this framework. We'll use this
+| application as an "IoC" container and router for this framework.
 |
 */
 
-$app = require __DIR__ . '/src/app.php';
+$app = new Lumenite\Neptune\Application(
+    dirname(__DIR__ . DIRECTORY_SEPARATOR . 'src')
+);
+
+/*
+|--------------------------------------------------------------------------
+| Register Container Bindings
+|--------------------------------------------------------------------------
+|
+| Now we will register a few bindings in the service container. We will
+| register the exception handler and the console kernel. You may add
+| your own bindings here if you like or you can make another file.
+|
+*/
+
+$app->singleton(
+    Illuminate\Contracts\Debug\ExceptionHandler::class,
+    Lumenite\Neptune\Exceptions\Handler::class
+);
+
+$app->singleton(
+    Illuminate\Contracts\Console\Kernel::class,
+    Lumenite\Neptune\Kernel::class
+);
 
 /*
 |--------------------------------------------------------------------------

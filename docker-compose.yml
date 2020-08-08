@@ -2,7 +2,10 @@ version: "3.1"
 
 services:
   caddy:
-    build: docker/caddy
+    build:
+      context: docker/caddy
+      args:
+        - projects=${PROJECTS}
     working_dir: /code
     environment:
       - TLS_EMAIL_ID=${TLS_EMAIL_ID}
@@ -18,11 +21,16 @@ services:
 
   php-fpm:
     build: docker/php-fpm
+    working_dir: /code/neptune
+    environment:
+      - PROJECTS=${PROJECTS}
+    volumes:
+      - ./code:/code
 
   mysql:
     image: mysql:5.7
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
       - MYSQL_DATABASE=${DB_DATABASE}
       - MYSQL_USER=${DB_USERNAME}
       - MYSQL_PASSWORD=${DB_PASSWORD}

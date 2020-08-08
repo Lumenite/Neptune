@@ -1,22 +1,20 @@
 <?php
 
-namespace Lumenite\Neptune;
+namespace Lumenite\Neptune\Drivers;
 
 use Illuminate\Filesystem\Filesystem;
 use Lumenite\Neptune\Exceptions\ResourceDeploymentException;
+use Lumenite\Neptune\Process;
 use Lumenite\Neptune\ResourceResponse\ClusterResponse;
-use Lumenite\Neptune\ResourceResponse\Response;
 use Lumenite\Neptune\Resources\Resource;
 use Lumenite\Neptune\Resources\ResourceContract;
-use Symfony\Component\Process\InputStream;
-use Symfony\Component\Process\Process;
 
 /**
  * Kubectl process dispatcher class.
  *
  * @package Modelizer\Lanton
  */
-class Kubectl
+class Kubectl implements DriverContract
 {
     /** @var Filesystem $fileManager */
     protected $fileManager;
@@ -33,20 +31,18 @@ class Kubectl
     }
 
     /**
-     * @param Resource $resource
+     * @param \Lumenite\Neptune\Resources\Resource $resource
      * @param callable|null $callback
-     * @return ClusterResponse
-     * @throws ResourceDeploymentException
+     * @return \Lumenite\Neptune\ResourceResponse\ClusterResponse
+     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
      */
     public function get(Resource $resource, callable $callback = null)
     {
         $this->verifyResource($resource);
 
-        $process = new Process([
-            'kubectl', 'get', $resource->getKind(), $resource->getName(), '-n', $resource->getNamespace(), '-o', 'json',
-        ]);
-
-        $process->enableOutput();
+        $process = new Process(
+            "kubectl get {$resource->getKind()} {$resource->getName()} -n {$resource->getNamespace()} -o json"
+        );
 
         $process->run($this->handleOutput($resource, $callback));
 
@@ -54,18 +50,16 @@ class Kubectl
     }
 
     /**
-     * @param Resource $resource
+     * @param \Lumenite\Neptune\Resources\Resource $resource
      * @param callable|null $callback
-     * @return ClusterResponse
-     * @throws ResourceDeploymentException
+     * @return \Lumenite\Neptune\ResourceResponse\ClusterResponse
+     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
      */
     public function apply(Resource $resource, callable $callback = null)
     {
         $this->verifyResource($resource);
 
-        $process = new Process([
-            'kubectl', 'apply', '-o', 'json', '-f', $resource->getFilePath(),
-        ]);
+        $process = new Process("kubectl apply -o json -f {$resource->getFilePath()}");
 
         $process->run($this->handleOutput($resource, $callback));
 
@@ -73,18 +67,16 @@ class Kubectl
     }
 
     /**
-     * @param Resource $resource
+     * @param \Lumenite\Neptune\Resources\Resource $resource
      * @param callable|null $callback
-     * @return ClusterResponse
-     * @throws ResourceDeploymentException
+     * @return \Lumenite\Neptune\ResourceResponse\ClusterResponse
+     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
      */
     public function delete(Resource $resource, callable $callback = null)
     {
         $this->verifyResource($resource);
 
-        $process = new Process([
-            'kubectl', 'delete', '-f', $resource->getFilePath(),
-        ]);
+        $process = new Process("kubectl delete -f {$resource->getFilePath()}");
 
         $process->run($this->handleOutput($resource, $callback));
 
@@ -92,10 +84,10 @@ class Kubectl
     }
 
     /**
-     * @param Resource $resource
+     * @param \Lumenite\Neptune\Resources\Resource $resource
      * @param callable|null $callback
-     * @return $this|Kubectl
-     * @throws ResourceDeploymentException
+     * @return $this
+     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
      */
     public function wait(Resource $resource, callable $callback = null)
     {
@@ -110,35 +102,39 @@ class Kubectl
 
     /**
      * @param \Lumenite\Neptune\Resources\Resource $resource
+     * @param string $container
      * @param callable|null $callback
-     * @return \Symfony\Component\Process\Process
+     * @return \Lumenite\Neptune\Process
      * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
      */
-    public function logs(Resource $resource, ?callable $callback)
+    public function logs(Resource $resource, string $container, ?callable $callback)
     {
         $this->verifyResource($resource);
 
-        $process = new Process([
-            'kubectl',
-            'logs',
-            '-n',
+        $process = new Process(sprintf(
+            'kubectl logs -n %s -l job-name=%s -c %s -f --pod-running-timeout=20s',
             $resource->getNamespace(),
-            '-l',
-            "job-name={$resource->getName()}",
-            '--all-containers=true',
-            '-f',
-        ]);
+            $resource->getName(),
+            $container
+        ));
 
-        $process->setTimeout(null);
-        $process->enableOutput();
+        try {
+            $process->run($this->handleOutput($resource, $callback, "<fg=green>$container: </>"));
+        } catch (ResourceDeploymentException $exception) {
+            if (!strpos($exception->getMessage(), 'is waiting to start: PodInitializing')) {
+                throw $exception;
+            }
 
-        $process->run($this->handleOutput($resource, $callback));
+            sleep(1);
+            $callback('Please wait for the container to get initialize...');
+            $this->logs($resource, $container, $callback);
+        }
 
         return $process;
     }
 
     /**
-     * @return ClusterResponse
+     * @return \Lumenite\Neptune\ResourceResponse\ClusterResponse
      */
     public function getResponse()
     {
@@ -146,13 +142,15 @@ class Kubectl
     }
 
     /**
-     * @param ResourceContract $resource
+     * @param \Lumenite\Neptune\Resources\ResourceContract $resource
      * @param callable|null $callback
+     * @param string $prefixStdout
      * @return \Closure
      */
-    public function handleOutput(ResourceContract $resource, callable $callback = null)
+    protected function handleOutput(ResourceContract $resource, callable $callback = null, $prefixStdout = '')
     {
-        return function ($status, $stdout) use ($resource, $callback) {
+        return function ($status, $stdout) use ($resource, $callback, $prefixStdout) {
+            $stdout = $prefixStdout . $stdout;
             if ($status !== Process::OUT) {
                 throw new ResourceDeploymentException($stdout);
             }
@@ -171,8 +169,8 @@ class Kubectl
     }
 
     /**
-     * @param Resource $resource
-     * @throws ResourceDeploymentException
+     * @param \Lumenite\Neptune\Resources\Resource $resource
+     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
      */
     protected function verifyResource(Resource $resource)
     {

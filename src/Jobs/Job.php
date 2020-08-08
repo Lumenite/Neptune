@@ -1,6 +1,6 @@
 <?php
 
-namespace Lumenite\Neptune\Jobs;
+namespace Lumenite\Neptune\Drivers\Jobs;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

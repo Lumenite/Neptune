@@ -53,3 +53,14 @@ db_password: ""
 # ------------------------------------------------------------------------------------------------------------
 aws_profile: "default"
 aws_s3_bucket: ""
+
+# ------------------------------------------------------------------------------------------------------------
+# When we publish the release we also need to follow the logs output. Therefore it is required
+# To specify here which containers inside jobs should be followed.
+# Note: The first can initial container and it shows the logs sequentially. The pod's container name should
+# be exactly in artifact file or else it will not show the logs.
+# ------------------------------------------------------------------------------------------------------------
+resources:
+  artifact_containers:
+    - php-setup
+    - node-setup

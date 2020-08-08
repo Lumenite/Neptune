@@ -28,7 +28,6 @@ class DeploymentResourceCommand extends ResourceCommand
     /**
      * @param \Lumenite\Neptune\Resources\Deployment $deployment
      * @throws \Lumenite\Neptune\Exceptions\DeploymentTerminatedException
-     * @throws \Lumenite\Neptune\Exceptions\NotFoundException
      */
     public function handle(Deployment $deployment)
     {

@@ -34,14 +34,14 @@ class AutoScaleResourceCommand extends ResourceCommand
     {
         $autoScale = $autoScale->load(
             $this->getResourceLoader()->getHpaPath(),
-            $this->getResourceLoader()->getValues()
+            $this->getResourceLoader()
         );
 
         $this->{$this->option('delete') ? 'delete' : 'apply'}($autoScale);
     }
 
     /**
-     * @param \Lumenite\Neptune\Resources\ResourceContract|AutoScale $autoScale
+     * @param \Lumenite\Neptune\Resources\ResourceContract $autoScale
      * @return mixed|void
      */
     protected function apply(ResourceContract $autoScale)
@@ -52,7 +52,7 @@ class AutoScaleResourceCommand extends ResourceCommand
     }
 
     /**
-     * @param \Lumenite\Neptune\Resources\ResourceContract|AutoScale $autoScale
+     * @param \Lumenite\Neptune\Resources\ResourceContract $autoScale
      * @return mixed|void
      */
     protected function delete(ResourceContract $autoScale)

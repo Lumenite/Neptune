@@ -1,6 +1,6 @@
 <?php
 
-namespace Lumenite\Neptune\Http\Middleware;
+namespace Lumenite\Neptune\Drivers\Http\Middleware;
 
 use Closure;
 use Illuminate\Contracts\Auth\Factory as Auth;

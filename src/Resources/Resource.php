@@ -2,12 +2,14 @@
 
 namespace Lumenite\Neptune\Resources;
 
+use Exception;
+use Illuminate\Console\Concerns\InteractsWithIO;
+use Illuminate\Console\OutputStyle;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
-use Lumenite\Neptune\Kubectl;
+use Lumenite\Neptune\Drivers\Kubectl;
 use Lumenite\Neptune\ResourceLoader;
 use Lumenite\Neptune\ResourceResponse\Response;
-use Symfony\Component\Yaml\Yaml;
 
 /**
  * A kubernetes resource abstraction layer.
@@ -17,6 +19,8 @@ use Symfony\Component\Yaml\Yaml;
  */
 abstract class Resource implements ResourceContract
 {
+    use InteractsWithIO;
+
     /** @var ResourceLoader $resourceLoader */
     protected $resourceLoader;
 
@@ -32,30 +36,35 @@ abstract class Resource implements ResourceContract
     /** @var Collection $config */
     protected $config;
 
+    /** @var \Lumenite\Neptune\Values $values */
+    protected $values;
+
+    /** @var OutputStyle $output */
+    protected $output;
+
     /**
-     * @param \Lumenite\Neptune\ResourceLoader $resourceLoader
      * @param \Illuminate\Filesystem\Filesystem $filesystem
-     * @param \Lumenite\Neptune\Kubectl $kubectl
+     * @param \Lumenite\Neptune\Drivers\Kubectl $kubectl
      */
-    public function __construct(ResourceLoader $resourceLoader, Filesystem $filesystem, Kubectl $kubectl)
+    public function __construct(Filesystem $filesystem, Kubectl $kubectl)
     {
-        $this->resourceLoader = $resourceLoader;
         $this->filesystem = $filesystem;
         $this->kubectl = $kubectl;
     }
 
     /**
      * @param string $file
-     * @param array $placeHolders
+     * @param \Lumenite\Neptune\ResourceLoader $resourceLoader
      * @return $this|mixed
+     * @throws \Lumenite\Neptune\Exceptions\NotFoundException
      */
-    public function load(string $file, array $placeHolders = [])
+    public function load(string $file, ResourceLoader $resourceLoader)
     {
-        $this->config = collect($this->resourceLoader->load($file, $placeHolders));
+        $this->config = collect($resourceLoader->load($file, $this->values = $resourceLoader->getValues()));
 
         $this->filesystem->put(
-            $this->filePath = NEPTUNE_EXEC_PATH. "/storage/k8s/{$this->getName()}.{$this->getKind()}.yml",
-            $this->resourceLoader
+            $this->filePath = NEPTUNE_EXEC_PATH . "/storage/k8s/{$this->getName()}.{$this->getKind()}.yml",
+            $resourceLoader
         );
 
         return $this;
@@ -93,22 +102,33 @@ abstract class Resource implements ResourceContract
 
     /**
      * @param callable|null $callback
-     * @return Kubectl|ResourceContract
+     * @return $this|\Lumenite\Neptune\Resources\ResourceContract
      * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
      */
     public function wait(callable $callback = null)
     {
-        return $this->kubectl->wait($this, $callback);
+        $this->kubectl->wait($this, $callback);
+
+        return $this;
     }
 
     /**
      * @param callable|null $callback
-     * @return string
+     * @return bool
      * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
+     * @throws \Exception
      */
     public function follow(callable $callback = null)
     {
-        return $this->kubectl->logs($this, $callback);
+        if (!$job = @$this->values->get('resources')['artifact_containers']) {
+            throw new Exception('No resources artifact_containers given in values.yml to follow logs.');
+        }
+
+        foreach ($job as $container) {
+            $this->kubectl->logs($this, $container, $callback);
+        }
+
+        return true;
     }
 
     /**
@@ -149,5 +169,29 @@ abstract class Resource implements ResourceContract
     public function getResponseClass()
     {
         return Response::class;
+    }
+
+    /**
+     * @param \Illuminate\Console\OutputStyle $output
+     */
+    public function setOutput(OutputStyle $output)
+    {
+        $this->output = $output;
+    }
+
+    /**
+     * @return \Closure
+     */
+    public function defaultOutput()
+    {
+//        if (! $this->output) {
+//            $this->output = app(OutputStyle::class);
+//        }
+
+        return function ($stdout) {
+            if ($stdout) {
+                $this->line(trim($stdout));
+            }
+        };
     }
 }

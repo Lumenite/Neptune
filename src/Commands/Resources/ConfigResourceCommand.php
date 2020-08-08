@@ -34,7 +34,7 @@ class ConfigResourceCommand extends ResourceCommand
     {
         $configMap = $configMap->load(
             $this->getResourceLoader()->getConfigPath(),
-            $this->getResourceLoader()->getValues()
+            $this->getResourceLoader()
         );
 
         $this->{$this->option('delete') ? 'delete' : 'apply'}($configMap);

@@ -2,6 +2,7 @@
 
 namespace Lumenite\Neptune\Resources;
 
+use Lumenite\Neptune\ResourceLoader;
 use Lumenite\Neptune\ResourceResponse\ClusterResponse;
 
 /**
@@ -12,10 +13,10 @@ interface ResourceContract
 {
     /**
      * @param string $file
-     * @param array $placeHolders
+     * @param \Lumenite\Neptune\ResourceLoader $resourceLoader
      * @return mixed
      */
-    public function load(string $file, array $placeHolders = []);
+    public function load(string $file, ResourceLoader $resourceLoader);
 
     /**
      * @return string
@@ -26,25 +27,31 @@ interface ResourceContract
      * @param callable|null $callback
      * @return mixed
      */
-    public function apply(?callable $callback = null);
+    public function apply(callable $callback = null);
 
     /**
      * @param callable|null $callback
      * @return mixed
      */
-    public function delete(?callable $callback = null);
+    public function delete(callable $callback = null);
 
     /**
-     * @param callable $callback
+     * @param callable|null $callback
      * @return ClusterResponse
      */
-    public function get(callable $callback);
+    public function get(callable $callback = null);
 
     /**
-     * @param callable $callback
-     * @return self
+     * @param callable|null $callback
+     * @return mixed
      */
-    public function wait(callable $callback);
+    public function wait(callable $callback = null);
+
+    /**
+     * @param callable|null $callback
+     * @return mixed
+     */
+    public function follow(callable $callback = null);
 
     /**
      * @return string

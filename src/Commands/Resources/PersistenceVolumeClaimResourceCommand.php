@@ -33,14 +33,14 @@ class PersistenceVolumeClaimResourceCommand extends ResourceCommand
     {
         $pvc = $pvc->load(
             $this->getResourceLoader()->getDiskPath(),
-            $this->getResourceLoader()->getValues()
+            $this->getResourceLoader()
         );
 
         $this->{$this->option('delete') ? 'delete' : 'apply'}($pvc);
     }
 
     /**
-     * @param \Lumenite\Neptune\Resources\ResourceContract|PersistentVolumeClaim $pvc
+     * @param \Lumenite\Neptune\Resources\ResourceContract $pvc
      * @return mixed|void
      */
     protected function apply(ResourceContract $pvc)
@@ -51,7 +51,7 @@ class PersistenceVolumeClaimResourceCommand extends ResourceCommand
     }
 
     /**
-     * @param \Lumenite\Neptune\Resources\ResourceContract|PersistentVolumeClaim $pvc
+     * @param \Lumenite\Neptune\Resources\ResourceContract $pvc
      * @return mixed|void
      */
     protected function delete(ResourceContract $pvc)

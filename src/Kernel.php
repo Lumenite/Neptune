@@ -5,9 +5,9 @@ namespace Lumenite\Neptune;
 use Illuminate\Console\Scheduling\Schedule;
 use Laravel\Lumen\Console\Kernel as LumenKernel;
 use Lumenite\Neptune\Commands\DockerPublishCommand;
+use Lumenite\Neptune\Commands\Release\DeleteReleaseCommand;
 use Lumenite\Neptune\Commands\Release\MakeReleaseCommand;
 use Lumenite\Neptune\Commands\Release\PublishReleaseCommand;
-use Lumenite\Neptune\Commands\Release\DeleteReleaseCommand;
 use Lumenite\Neptune\Commands\Resources\AutoScaleResourceCommand;
 use Lumenite\Neptune\Commands\Resources\ConfigResourceCommand;
 use Lumenite\Neptune\Commands\Resources\DeploymentResourceCommand;
@@ -42,7 +42,7 @@ class Kernel extends LumenKernel
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule $schedule
+     * @param \Illuminate\Console\Scheduling\Schedule $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)

@@ -23,7 +23,7 @@ class ResourceLoader implements Arrayable
     /** @var null|string $appNamespace */
     protected $appNamespace = null;
 
-    /** @var array */
+    /** @var \Lumenite\Neptune\Values $values */
     protected $values;
 
     /** @var Yaml $yaml */
@@ -150,19 +150,16 @@ class ResourceLoader implements Arrayable
     }
 
     /**
-     * @return array
+     * @return array|\Lumenite\Neptune\Values
      * @throws \Lumenite\Neptune\Exceptions\NotFoundException
      */
     public function getValues()
     {
         if (!$this->values) {
-            $values = $this->yaml::parseFile($this->getReleasePath('values.yml'));
-            $primaryValues = [
-                'namespace' =>  $this->appNamespace ?? $values['namespace'],
-                'version' => 'v' . ($this->version ?? $values['version']),
-            ];
-
-            return $this->values = array_merge($values, $primaryValues);
+            return $this->values = new Values($this->getReleasePath(Release::VALUES_FILE), [
+                'namespace' => $this->appNamespace,
+                'version' => $this->version,
+            ]);
         }
 
         return $this->values;
@@ -175,7 +172,7 @@ class ResourceLoader implements Arrayable
      */
     public function get($key)
     {
-        return $this->getValues()[$key];
+        return $this->getValues()->get($key);
     }
 
     /**
@@ -203,20 +200,32 @@ class ResourceLoader implements Arrayable
 
     /**
      * @param string $file
-     * @param array $placeHolders
+     * @param array|\Lumenite\Neptune\Values $placeholders
      * @return $this
      */
-    public function load(string $file, array $placeHolders = [])
+    public function load($file, Values $placeholders)
     {
-        $content = file_get_contents($file);
-
-        foreach ($placeHolders as $key => $value) {
-            $content = preg_replace("/\{\{\s?\.$key\s?\}\}/i", $value, $content);
-        }
-
-        $this->content = $content;
+        $this->content = $this->replacePlaceholders(file_get_contents($file), $placeholders->toArray());
 
         return $this;
+    }
+
+    /**
+     * @param string $content
+     * @param array $placeholders
+     * @param string $suffix
+     * @return string|string[]|null
+     */
+    protected function replacePlaceholders(string $content, array $placeholders, string $suffix = '')
+    {
+        foreach ($placeholders as $key => $value) {
+            if (is_array($value)) {
+                return $this->replacePlaceholders($content, $value, ".$key");
+            }
+
+            $content = preg_replace("/\{\{\s?{$suffix}\.{$key}\s?\}\}/i", $value, $content);
+        }
+        return $content;
     }
 
     /**
