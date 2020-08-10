@@ -21,9 +21,9 @@ WORKDIR /code
 
 # Install locales package
 RUN apt-get update && apt-get -y --no-install-recommends install libpng-dev cron locales git make \
-    php7.2-mysql php7.2-sqlite3 php7.2-intl php7.2-redis php7.2-gmp php7.2-gd php7.2-bcmath \
-	&& apt-get clean; \
-	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+    php7.2-mysql php7.2-sqlite3 php7.2-intl php7.2-gmp php7.2-gd php7.2-bcmath \
+	&& apt-get clean \
+	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
 # configure locales
 RUN ln -sf /etc/locale.alias /usr/share/locale/locale.alias \
