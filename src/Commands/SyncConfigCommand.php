@@ -34,10 +34,12 @@ class SyncConfigCommand extends Command
      */
     public function handle(ResourceLoader $resourceLoader)
     {
-        $resourceLoader->setReleaseName($this->argument('app'));
-        if ($this->option('production')) {
-            $resourceLoader->setNamespace('production');
-        }
+        tap($resourceLoader->setReleaseName($this->argument('app')), function ($resourceLoader) {
+            if ($this->option('production')) {
+                $resourceLoader->setNamespace('production');
+            }
+        });
+
         $values = $resourceLoader->getValues();
 
         $awsS3Copy = [
@@ -49,9 +51,7 @@ class SyncConfigCommand extends Command
 
         foreach ([Release::VALUES_FILE, Release::SECRET_FILE] as $file) {
             $process = new Process(
-                array_merge(
-                    $awsS3Copy,
-                    [
+                array_merge($awsS3Copy, [
                         $resourceLoader->getReleasePath($file),
                         "s3://{$values['aws_s3_bucket']}/{$values['name']}/$file",
                     ]
@@ -68,6 +68,5 @@ class SyncConfigCommand extends Command
                 $this->line(trim($stdout));
             });
         }
-
     }
 }
