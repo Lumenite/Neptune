@@ -38,7 +38,7 @@ class Kubectl implements DriverContract
      */
     public function get(Resource $resource, callable $callback = null)
     {
-        $this->verifyResource($resource);
+        $this->useContext($resource)->verifyResource($resource);
 
         $process = new Process(
             "kubectl get {$resource->getKind()} {$resource->getName()} -n {$resource->getNamespace()} -o json"
@@ -57,7 +57,7 @@ class Kubectl implements DriverContract
      */
     public function apply(Resource $resource, callable $callback = null)
     {
-        $this->verifyResource($resource);
+        $this->useContext($resource)->verifyResource($resource);
 
         $process = new Process("kubectl apply -o json -f {$resource->getFilePath()}");
 
@@ -74,7 +74,7 @@ class Kubectl implements DriverContract
      */
     public function delete(Resource $resource, callable $callback = null)
     {
-        $this->verifyResource($resource);
+        $this->useContext($resource)->verifyResource($resource);
 
         $process = new Process("kubectl delete -f {$resource->getFilePath()}");
 
@@ -109,7 +109,7 @@ class Kubectl implements DriverContract
      */
     public function logs(Resource $resource, string $container, ?callable $callback)
     {
-        $this->verifyResource($resource);
+        $this->useContext($resource)->verifyResource($resource);
 
         $process = new Process(sprintf(
             'kubectl logs -n %s -l job-name=%s -c %s -f --pod-running-timeout=20s',
@@ -177,5 +177,17 @@ class Kubectl implements DriverContract
         if (!$resource->getFilePath()) {
             throw new ResourceDeploymentException('Resource not loaded before applying');
         }
+    }
+
+    /**
+     * @param \Lumenite\Neptune\Resources\Resource $resource
+     * @return $this
+     */
+    protected function useContext(Resource $resource)
+    {
+        $process = new Process("kubectl config use-context {$resource->getContext()}");
+        $process->run();
+
+        return $this;
     }
 }

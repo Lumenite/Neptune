@@ -2,6 +2,7 @@
 
 namespace Lumenite\Neptune;
 
+use Lumenite\Neptune\Exceptions\NotFoundException;
 use Lumenite\Neptune\Resources\ConfigMap;
 use Lumenite\Neptune\Resources\Deployment;
 use Lumenite\Neptune\Resources\Job;
@@ -109,6 +110,14 @@ class Release
 
     /** @var bool $onProduction */
     protected $onProduction;
+
+    /**
+     * Set callback when file not found exception is thrown while load the file.
+     * Note: In release only secret and config are
+     *
+     * @var callable $fileNotFindFailure
+     */
+    protected $fileNotFindFailure;
 
     /**
      * @param ResourceLoader $resourceLoader
@@ -228,13 +237,47 @@ class Release
      */
     public function load($name, $version = null)
     {
-        $this->setName($name)->setVersion($version);
-        $this->config->load($this->resourceLoader->getConfigPath(), $this->resourceLoader);
-        $this->secret->load($this->resourceLoader->getSecretPath(), $this->resourceLoader);
+        $this->setName($name)
+            ->setVersion($version)
+            ->catchFileNotFoundException(function () {
+                $this->config->load($this->resourceLoader->getConfigPath(), $this->resourceLoader);
+            })
+            ->catchFileNotFoundException(function () {
+                $this->secret->load($this->resourceLoader->getSecretPath(), $this->resourceLoader);
+            });
+
         $this->disk->load($this->resourceLoader->getDiskPath(), $this->resourceLoader);
         $this->artifact->load($this->resourceLoader->getArtifactPath(), $this->resourceLoader);
         $this->service->load($this->resourceLoader->getServicePath(), $this->resourceLoader);
         $this->app->load($this->resourceLoader->getDeploymentPath(), $this->resourceLoader);
+
+        return $this;
+    }
+
+    /**
+     * @param callable $callback
+     * @return $this
+     */
+    public function setFileNotFoundFailure(callable $callback)
+    {
+        $this->fileNotFindFailure = $callback;
+
+        return $this;
+    }
+
+    /**
+     * @param callable $callback
+     * @return $this
+     */
+    protected function catchFileNotFoundException(callable $callback)
+    {
+        try {
+            $callback();
+        } catch (NotFoundException $exception) {
+            if ($this->fileNotFindFailure) {
+                call_user_func($this->fileNotFindFailure, $exception);
+            }
+        }
 
         return $this;
     }

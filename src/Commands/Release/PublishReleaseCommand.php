@@ -3,6 +3,8 @@
 namespace Lumenite\Neptune\Commands\Release;
 
 use Illuminate\Console\Command;
+use Lumenite\Neptune\Exceptions\NotFoundException;
+use Lumenite\Neptune\Exceptions\ResourceDeploymentException;
 use Lumenite\Neptune\Release;
 use Lumenite\Neptune\ResourceResponse\JobResponse;
 use Lumenite\Neptune\Resources\Job;
@@ -35,29 +37,51 @@ class PublishReleaseCommand extends Command
     protected $release;
 
     /**
-     * @param Release $release
-     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException|\Exception
+     * @param \Lumenite\Neptune\Release $release
      */
-    public function handle(Release $release)
+    public function __construct(Release $release)
+    {
+        $this->release = $release;
+
+        parent::__construct();
+    }
+
+    /**
+     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
+     * @throws \Exception
+     */
+    public function handle()
     {
         if ($this->option('production')) {
-            $release->onProduction();
+            $this->release->onProduction();
         }
 
-        $this->release = $release = $release->load($this->argument('app'), $this->argument('version'));
+        $this->release
+            ->setFileNotFoundFailure(function (NotFoundException $exception) {
+                $this->warn($exception->getMessage());
+            })
+            ->load($this->argument('app'), $this->argument('version'));
 
-        $release->getConfig()->apply();
-        $this->info("ConfigMap deployed successfully.");
+        try {
+            $this->release->getConfig()->apply();
+            $this->info("ConfigMap deployed successfully.");
+        } catch (ResourceDeploymentException $exception) {
+            $this->warn($exception->getMessage());
+        }
 
-        $release->getSecret()->apply();
-        $this->info("Secret deployed successfully.");
+        try {
+            $this->release->getSecret()->apply();
+            $this->info("Secret deployed successfully.");
+        } catch (ResourceDeploymentException $exception) {
+            $this->warn($exception->getMessage());
+        }
 
-        $this->deployPersistentVolumeClaim($release->getDisk())->deployJob($release->getArtifact());
+        $this->deployPersistentVolumeClaim($this->release->getDisk())->deployJob($this->release->getArtifact());
 
-        $release->getService()->apply();
+        $this->release->getService()->apply();
         $this->info("Service deployed successfully.");
 
-        $release->getApp()->apply();
+        $this->release->getApp()->apply();
         $this->info("Deployment deployed successfully.");
     }
 

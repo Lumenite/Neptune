@@ -6,6 +6,24 @@ use Illuminate\Contracts\Support\Arrayable;
 use Symfony\Component\Yaml\Yaml;
 
 /**
+ * @property $context
+ * @property $namespace
+ * @property $name
+ * @property $version
+ * @property $storageClass
+ * @property $git_host
+ * @property $git_namespace
+ * @property $npm_token
+ * @property $app_key
+ * @property $db_password
+ * @property $aws_profile
+ * @property $aws_s3_bucket
+ * @property $resources
+ *
+ * @see /stubs/values.yml
+ * @see /kubernetes/{your-app-name}/values.yml
+ *
+ * @package Lumenite\Neptune
  * @author Mohammed Mudassir <hello@mudasir.me>
  */
 class Values implements Arrayable
@@ -36,6 +54,15 @@ class Values implements Arrayable
     public function __call($name, $arguments)
     {
         return $this->properties->$name(...$arguments);
+    }
+
+    /**
+     * @param $name
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        return $this->properties[$name];
     }
 
     /**

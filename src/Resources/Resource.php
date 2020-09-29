@@ -150,6 +150,14 @@ abstract class Resource implements ResourceContract
     /**
      * @return mixed
      */
+    public function getContext()
+    {
+        return $this->values->context;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getName()
     {
         return $this->config['metadata']['name'];
