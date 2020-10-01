@@ -91,6 +91,8 @@ class PublishReleaseCommand extends Command
 
         $this->release->getApp()->apply();
         $this->info("Deployment deployed successfully.");
+
+        $this->call('config:sync', ['app' => $this->argument('app')]);
     }
 
     /**
