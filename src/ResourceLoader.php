@@ -213,7 +213,7 @@ class ResourceLoader implements Arrayable
     /**
      * @param string $content
      * @param array $placeholders
-     * @param string $suffix
+     * @param string $suffix`
      * @return string|string[]|null
      */
     protected function replacePlaceholders(string $content, array $placeholders, string $suffix = '')

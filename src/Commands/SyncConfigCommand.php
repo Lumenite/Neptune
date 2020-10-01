@@ -3,6 +3,8 @@
 namespace Lumenite\Neptune\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Lumenite\Neptune\Exceptions\NotFoundException;
 use Lumenite\Neptune\Exceptions\ResourceDeploymentException;
 use Lumenite\Neptune\Release;
 use Lumenite\Neptune\ResourceLoader;
@@ -50,13 +52,17 @@ class SyncConfigCommand extends Command
         ];
 
         foreach ([Release::VALUES_FILE, Release::SECRET_FILE] as $file) {
-            $process = new Process(
-                array_merge($awsS3Copy, [
-                        $resourceLoader->getReleasePath($file),
-                        "s3://{$values['aws_s3_bucket']}/{$values['name']}/$file",
-                    ]
-                )
-            );
+            try {
+                $process = new Process(
+                    array_merge($awsS3Copy, [
+                            $resourceLoader->getReleasePath($file),
+                            "s3://{$values['aws_s3_bucket']}/{$values['name']}/$file",
+                        ]
+                    )
+                );
+            } catch (NotFoundException $exception) {
+                continue;
+            }
 
             $process->enableOutput();
 

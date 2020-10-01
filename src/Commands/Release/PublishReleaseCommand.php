@@ -52,15 +52,13 @@ class PublishReleaseCommand extends Command
      */
     public function handle()
     {
-        if ($this->option('production')) {
-            $this->release->onProduction();
-        }
-
-        $this->release
-            ->setFileNotFoundFailure(function (NotFoundException $exception) {
-                $this->warn($exception->getMessage());
-            })
-            ->load($this->argument('app'), $this->argument('version'));
+        tap($this->release, function () {
+            if ($this->option('production')) {
+                $this->release->onProduction();
+            }
+        })->setFileNotFoundFailure(function (NotFoundException $exception) {
+            $this->warn($exception->getMessage());
+        })->load($this->argument('app'), $this->argument('version'));
 
         try {
             $this->release->getConfig()->apply();
@@ -76,35 +74,25 @@ class PublishReleaseCommand extends Command
             $this->warn($exception->getMessage());
         }
 
-        $this->deployPersistentVolumeClaim($this->release->getDisk())->deployJob($this->release->getArtifact());
+        try {
+            $this->deployPersistentVolumeClaim($this->release->getDisk());
+        } catch (ResourceDeploymentException $exception) {
+            $this->warn($exception->getMessage());
+        }
+
+        try {
+            $this->deployJob($this->release->getArtifact());
+        } catch (ResourceDeploymentException $exception) {
+            $this->warn($exception->getMessage());
+        }
 
         $this->release->getService()->apply();
         $this->info("Service deployed successfully.");
 
         $this->release->getApp()->apply();
         $this->info("Deployment deployed successfully.");
-    }
 
-    /**
-     * @param \Lumenite\Neptune\Resources\PersistentVolumeClaim $pvc
-     * @return $this
-     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
-     */
-    protected function deployPersistentVolumeClaim(PersistentVolumeClaim $pvc)
-    {
-        $response = $pvc->apply();
-        $this->info("PVC '{$response->name()}' created.");
-
-        # Waiting for PVC to get initialized
-        $this->info("Waiting for PVC '{$response->name()}' to get initialize.");
-        $bar = $this->output->createProgressBar(10);
-        $bar->start();
-        $pvc->wait(function () use ($bar) {
-            $bar->advance();
-        });
-        $bar->finish();
-
-        return $this;
+        $this->call('config:sync', ['app' => $this->argument('app')]);
     }
 
     /**
@@ -121,5 +109,28 @@ class PublishReleaseCommand extends Command
                 $this->line(trim($stdout));
             });
         });
+    }
+
+    /**
+     * @param \Lumenite\Neptune\Resources\PersistentVolumeClaim $pvc
+     * @return $this
+     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
+     */
+    protected function deployPersistentVolumeClaim(PersistentVolumeClaim $pvc)
+    {
+        $response = $pvc->apply();
+        $this->info("PVC '{$response->name()}' created.");
+
+        # Waiting for PVC to get initialized
+        $this->info("Waiting for PVC '{$response->name()}' to get initialize.");
+        tap($this->output->createProgressBar(10), function ($bar) use ($pvc) {
+            $bar->start();
+            $pvc->wait(function () use ($bar) {
+                $bar->advance();
+            });
+            $bar->finish();
+        });
+
+        return $this;
     }
 }

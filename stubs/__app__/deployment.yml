@@ -24,8 +24,6 @@ spec:
         - name: ft-repository
           persistentVolumeClaim:
             claimName: {{ .name }}-{{ .version }}
-      imagePullSecrets:
-        - name: ecr-secret
       hostAliases:
         - ip: "127.0.0.1"
           hostnames:
