@@ -152,7 +152,7 @@ abstract class Resource implements ResourceContract
      */
     public function getContext()
     {
-        return $this->values->context;
+        return $this->values['context'];
     }
 
     /**
@@ -192,9 +192,8 @@ abstract class Resource implements ResourceContract
      */
     public function defaultOutput()
     {
-//        if (! $this->output) {
-//            $this->output = app(OutputStyle::class);
-//        }
+        // As we should be able to control output.
+        // When no output given it should get it from container or use null output
 
         return function ($stdout) {
             if ($stdout) {

@@ -4,6 +4,7 @@ namespace Lumenite\Neptune;
 
 use ArrayAccess;
 use Illuminate\Contracts\Support\Arrayable;
+use Lumenite\Neptune\Exceptions\InvalidValueGivenException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -105,9 +106,14 @@ class Values implements Arrayable, ArrayAccess
     /**
      * @param $name
      * @return mixed
+     * @throws \Lumenite\Neptune\Exceptions\InvalidValueGivenException
      */
     public function __get($name)
     {
-        return $this->properties[$name];
+        if ($value = $this->properties->get($name)) {
+            return $value;
+        }
+
+        throw new InvalidValueGivenException($name);
     }
 }

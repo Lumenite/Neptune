@@ -244,10 +244,14 @@ class Release
             })
             ->catchFileNotFoundException(function () {
                 $this->secret->load($this->resourceLoader->getSecretPath(), $this->resourceLoader);
+            })
+            ->catchFileNotFoundException(function () {
+                $this->disk->load($this->resourceLoader->getDiskPath(), $this->resourceLoader);
+            })
+            ->catchFileNotFoundException(function () {
+                $this->artifact->load($this->resourceLoader->getArtifactPath(), $this->resourceLoader);
             });
 
-        $this->disk->load($this->resourceLoader->getDiskPath(), $this->resourceLoader);
-        $this->artifact->load($this->resourceLoader->getArtifactPath(), $this->resourceLoader);
         $this->service->load($this->resourceLoader->getServicePath(), $this->resourceLoader);
         $this->app->load($this->resourceLoader->getDeploymentPath(), $this->resourceLoader);
 
