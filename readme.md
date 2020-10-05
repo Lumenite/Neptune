@@ -1,13 +1,13 @@
 # Neptune Framework
 
-## Kubernetes Deployment Framework for Laravel Application
+## Kubernetes way continues delivery for web application
 
-> Note: Neptune is in development stage. Commands or APIs may change when a better solution is found.
+> Note: Neptune is in development stage. Commands or APIs may change when a better solution has been found.
 
-### Documentation
+### Software Purpose
 
-1. The main purpose of Neptune is to manage Laravel or any other application by Release methodology. 
-2. It standardise the deployment process and focus more to mimic production environment on Minikube.
+1. The main purpose of Neptune is to deploy Laravel or any other application by [Release methodology](https://neptune.lumenite.net/concepts) 
+2. It is design to use existing kubernetes resources to make a CD lifecycle.
 3. Full documentation is available here https://neptune.lumenite.net
 
 ### License
