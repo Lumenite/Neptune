@@ -17,6 +17,10 @@ class JobResponse extends Response
             return false;
         }
 
-        return $this->response['status']['active'] != 1;
+        if (@$this->response['status']['active'] != 1) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -56,7 +56,7 @@ class SyncConfigCommand extends Command
                 $process = new Process(
                     array_merge($awsS3Copy, [
                             $resourceLoader->getReleasePath($file),
-                            "s3://{$values['aws_s3_bucket']}/{$values['name']}/$file",
+                            "s3://{$values['aws_s3_bucket']}/{$values['namespace']}/{$values['name']}/$file",
                         ]
                     )
                 );

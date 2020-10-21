@@ -195,6 +195,16 @@ class Release
     }
 
     /**
+     * @param $key
+     * @return \Lumenite\Neptune\Values
+     * @throws \Lumenite\Neptune\Exceptions\NotFoundException
+     */
+    public function getValues($key)
+    {
+        return $this->resourceLoader->getValues($key);
+    }
+
+    /**
      * @param $name
      * @return $this
      */

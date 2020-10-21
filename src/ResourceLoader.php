@@ -150,16 +150,21 @@ class ResourceLoader implements Arrayable
     }
 
     /**
-     * @return array|\Lumenite\Neptune\Values
+     * @param null $key
+     * @return \Lumenite\Neptune\Values
      * @throws \Lumenite\Neptune\Exceptions\NotFoundException
      */
-    public function getValues()
+    public function getValues($key = null)
     {
         if (!$this->values) {
             return $this->values = new Values($this->getReleasePath(Release::VALUES_FILE), [
                 'namespace' => $this->appNamespace,
                 'version' => $this->version,
             ]);
+        }
+
+        if ($key) {
+            return $this->values[$key];
         }
 
         return $this->values;

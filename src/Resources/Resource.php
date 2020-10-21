@@ -120,13 +120,13 @@ abstract class Resource implements ResourceContract
      */
     public function follow(callable $callback = null)
     {
-        if (!$job = @$this->values->get('resources')['artifact_containers']) {
-            throw new Exception('No resources artifact_containers given in values.yml to follow logs.');
+        if ($job = @$this->values->get('resources')['artifact_containers']) {
+            foreach ($job as $container) {
+                $this->kubectl->logs($this, $container, $callback);
+            }
         }
 
-        foreach ($job as $container) {
-            $this->kubectl->logs($this, $container, $callback);
-        }
+        $this->wait($callback('Neptune is waiting for resource to finish.'));
 
         return true;
     }

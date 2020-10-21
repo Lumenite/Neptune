@@ -60,6 +60,8 @@ class DockerPublishCommand extends Command
      */
     protected function copyDockerFiles(Filesystem $filesystem, string $dockerPath, string $stubPath): void
     {
+        // @todo Inside caddy file it should also replace the name
+
         $filesystem->copyDirectory($stubPath . '/docker', $dockerPath);
     }
 
@@ -69,6 +71,8 @@ class DockerPublishCommand extends Command
      */
     protected function copyDockerComposeFile(Filesystem $filesystem, string $stubPath): void
     {
+        // @todo it should replace neptune with the app name
+
         $filesystem->copy($stubPath . '/docker-compose.yml', NEPTUNE_EXEC_PATH . '/docker-compose.yml');
     }
 }

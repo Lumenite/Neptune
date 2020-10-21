@@ -47,8 +47,8 @@ class PublishReleaseCommand extends Command
     }
 
     /**
+     * @throws \Lumenite\Neptune\Exceptions\NotFoundException
      * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
-     * @throws \Exception
      */
     public function handle()
     {
@@ -87,28 +87,15 @@ class PublishReleaseCommand extends Command
         }
 
         $this->release->getService()->apply();
-        $this->info("Service deployed successfully.");
+            $this->info("Service deployed successfully.");
 
         $this->release->getApp()->apply();
-        $this->info("Deployment deployed successfully.");
+            $this->info("Deployment deployed successfully.");
 
-        $this->call('config:sync', ['app' => $this->argument('app')]);
-    }
-
-    /**
-     * @param \Lumenite\Neptune\Resources\Job $job
-     * @return \Lumenite\Neptune\ResourceResponse\ClusterResponse|mixed
-     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
-     */
-    protected function deployJob(Job $job)
-    {
-        return $job->apply(function ($stdout, JobResponse $response) use ($job) {
-            $this->info("\n\nJob '{$response->name()}' initialized.");
-
-            $job->wait()->follow(function ($stdout) {
-                $this->line(trim($stdout));
-            });
-        });
+        if ($this->release->getValues('aws_s3_bucket')) {
+            $this->info('Syncing values and secret files.');
+            $this->call('config:sync', ['app' => $this->argument('app')]);
+        }
     }
 
     /**
@@ -132,5 +119,21 @@ class PublishReleaseCommand extends Command
         });
 
         return $this;
+    }
+
+    /**
+     * @param \Lumenite\Neptune\Resources\Job $job
+     * @return \Lumenite\Neptune\ResourceResponse\ClusterResponse|mixed
+     * @throws \Lumenite\Neptune\Exceptions\ResourceDeploymentException
+     */
+    protected function deployJob(Job $job)
+    {
+        return $job->apply(function ($stdout, JobResponse $response) use ($job) {
+            $this->info("\n\nJob '{$response->name()}' initialized.");
+
+            $job->wait()->follow(function ($stdout) {
+                $this->line(trim($stdout));
+            });
+        });
     }
 }
